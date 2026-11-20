@@ -1,0 +1,1859 @@
+Project Blueprint — Version 1.0
+Product definition · Foundation before development
+
+We're going to treat this as a real software product blueprint, not simply a list of features to feed into an AI coding tool.
+
+The blueprint will define the product identity, vision, user experience, functional scope, screens, architecture direction, data relationships, AI boundaries, build phases and development rules.
+
+01 — Product identity
+Working name: Daywell
+Plan intentionally. Live consistently. Think clearly.
+
+Daywell is a provisional name for the blueprint. We haven't checked trademark, domain or naming availability.
+DAYWELL
+A personal life management platform.
+
+Plan your work, build your habits, track your progress and use intelligent assistance to make your everyday life more manageable.
+
+PLAN
+
+
+LIVE
+
+
+THINK
+
+
+
+
+Product philosophy
+1. One unified space. Avoid fragmented productivity tools.
+2. Consistency over perfection. Progress matters more than perfect streaks.
+3. Function before AI. Every core feature must work independently of AI.
+4. AI with purpose. AI should solve meaningful planning and decision problems.
+5. Visual progress. Make progress tangible, not hidden inside statistics.
+6. User control. AI proposes; the user controls meaningful changes.
+7. Minimal friction. Logging a habit or completing a task should be effortless.
+
+02 — The product vision
+Daywell helps people manage three connected aspects of their lives.
+PLAN
+
+Manage your commitments.
+
+Organize tasks, goals, projects and schedules. Know what needs to be done and when.
+
+LIVE
+
+Build the life you want to maintain.
+
+Track habits, exercise, routines, consistency and progress over time.
+
+THINK
+
+Make sense of it all.
+
+An intelligent assistant that understands the context of your plans and habits to offer insights and help you take action.
+
+
+The core user experience
+The user opens Daywell in the morning.
+
+They see:
+- What matters today.
+- What their schedule looks like.
+- The habits they need to maintain.
+- Their progress.
+- Their goals.
+- What needs attention.
+During the day, they complete tasks and log habits with minimal friction.
+
+Over time, they can view their consistency, activity, milestones and progress.
+
+When they feel overwhelmed, uncertain or want to optimize their plans, they consult THINK.
+
+Daywell should make the user feel organized, motivated and in control, not guilty about unfinished tasks.
+
+03 — Application structure & navigation
+Primary navigation
+
+I recommend a persistent sidebar on desktop and a bottom navigation or compact navigation structure on mobile.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+15
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Main navigation
+Navigation	Purpose
+Home	Unified daily overview
+Plan	Tasks, calendar, projects and goals
+Live	Habits, fitness, streaks and activity
+Think	AI assistant
+Statistics	Personal performance and insights
+Settings	Preferences and account
+
+Supporting navigation
+- Search.
+- Quick add.
+- Notifications.
+- Profile.
+- Global date navigation where relevant.
+Statistics could eventually be a separate page, but statistics should also appear contextually inside PLAN and LIVE. The dedicated Statistics page should provide a unified view rather than duplicate individual widgets.
+Navigation hierarchy
+#chatgpt-mermaid-_r_4o6_ :is(.node,.pele-node).success :is(rect,circle,ellipse,polygon,path):where(:not(.label *)) {fill:#1d3827;stroke:#194b2d}#chatgpt-mermaid-_r_4o6_ :is(.node,.pele-node).success [fill="none"]:where(:not(.label *)) {fill:none}#chatgpt-mermaid-_r_4o6_ :is(.node,.pele-node).success [stroke="none"]:where(:not(.label *)) {stroke:none}#chatgpt-mermaid-_r_4o6_ :is(.node,.pele-node).success :where(text,.label,.nodeLabel) {fill:#53b559;color:#53b559}#chatgpt-mermaid-_r_4o6_ :is(.node,.pele-node).warning :is(rect,circle,ellipse,polygon,path):where(:not(.label *)) {fill:#442d21;stroke:#613721}#chatgpt-mermaid-_r_4o6_ :is(.node,.pele-node).warning [fill="none"]:where(:not(.label *)) {fill:none}#chatgpt-mermaid-_r_4o6_ :is(.node,.pele-node).warning [stroke="none"]:where(:not(.label *)) {stroke:none}#chatgpt-mermaid-_r_4o6_ :is(.node,.pele-node).warning :where(text,.label,.nodeLabel) {fill:#ffffff;color:#ffffff}#chatgpt-mermaid-_r_4o6_{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;fill:rgb(237, 237, 237);}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#chatgpt-mermaid-_r_4o6_ .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-_r_4o6_ .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-_r_4o6_ .error-icon{fill:rgb(48, 48, 48);}#chatgpt-mermaid-_r_4o6_ .error-text{fill:rgb(237, 237, 237);stroke:rgb(237, 237, 237);}#chatgpt-mermaid-_r_4o6_ .edge-thickness-normal{stroke-width:1px;}#chatgpt-mermaid-_r_4o6_ .edge-thickness-thick{stroke-width:3.5px;}#chatgpt-mermaid-_r_4o6_ .edge-pattern-solid{stroke-dasharray:0;}#chatgpt-mermaid-_r_4o6_ .edge-thickness-invisible{stroke-width:0;fill:none;}#chatgpt-mermaid-_r_4o6_ .edge-pattern-dashed{stroke-dasharray:3;}#chatgpt-mermaid-_r_4o6_ .edge-pattern-dotted{stroke-dasharray:2;}#chatgpt-mermaid-_r_4o6_ .marker{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-_r_4o6_ .marker.cross{stroke:rgb(175, 175, 175);}#chatgpt-mermaid-_r_4o6_ svg{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;}#chatgpt-mermaid-_r_4o6_ p{margin:0;}#chatgpt-mermaid-_r_4o6_ .label{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";color:rgb(237, 237, 237);}#chatgpt-mermaid-_r_4o6_ .cluster-label text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-_r_4o6_ .cluster-label span{color:rgb(237, 237, 237);}#chatgpt-mermaid-_r_4o6_ .cluster-label span p{background-color:transparent;}#chatgpt-mermaid-_r_4o6_ .label text,#chatgpt-mermaid-_r_4o6_ span{fill:rgb(237, 237, 237);color:rgb(237, 237, 237);}#chatgpt-mermaid-_r_4o6_ .node rect,#chatgpt-mermaid-_r_4o6_ .node circle,#chatgpt-mermaid-_r_4o6_ .node ellipse,#chatgpt-mermaid-_r_4o6_ .node polygon,#chatgpt-mermaid-_r_4o6_ .node path{fill:rgb(9, 23, 44);stroke:rgb(31, 78, 148);stroke-width:1px;}#chatgpt-mermaid-_r_4o6_ .rough-node .label text,#chatgpt-mermaid-_r_4o6_ .node .label text,#chatgpt-mermaid-_r_4o6_ .image-shape .label,#chatgpt-mermaid-_r_4o6_ .icon-shape .label{text-anchor:middle;}#chatgpt-mermaid-_r_4o6_ .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#chatgpt-mermaid-_r_4o6_ .rough-node .label,#chatgpt-mermaid-_r_4o6_ .node .label,#chatgpt-mermaid-_r_4o6_ .image-shape .label,#chatgpt-mermaid-_r_4o6_ .icon-shape .label{text-align:center;}#chatgpt-mermaid-_r_4o6_ .node.clickable{cursor:pointer;}#chatgpt-mermaid-_r_4o6_ .root .anchor path{fill:rgb(175, 175, 175)!important;stroke-width:0;stroke:rgb(175, 175, 175);}#chatgpt-mermaid-_r_4o6_ .arrowheadPath{fill:rgb(175, 175, 175);}#chatgpt-mermaid-_r_4o6_ .edgePath .path{stroke:rgb(175, 175, 175);stroke-width:1px;}#chatgpt-mermaid-_r_4o6_ .flowchart-link{stroke:rgb(175, 175, 175);fill:none;}#chatgpt-mermaid-_r_4o6_ .edgeLabel{background-color:rgb(0, 0, 0);text-align:center;}#chatgpt-mermaid-_r_4o6_ .edgeLabel p{background-color:rgb(0, 0, 0);}#chatgpt-mermaid-_r_4o6_ .edgeLabel rect{opacity:0.5;background-color:rgb(0, 0, 0);fill:rgb(0, 0, 0);}#chatgpt-mermaid-_r_4o6_ .labelBkg{background-color:rgba(0, 0, 0, 0.5);}#chatgpt-mermaid-_r_4o6_ .cluster rect{fill:rgb(48, 48, 48);stroke:rgba(255, 255, 255, 0.15);stroke-width:1px;}#chatgpt-mermaid-_r_4o6_ .cluster text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-_r_4o6_ .cluster span{color:rgb(237, 237, 237);}#chatgpt-mermaid-_r_4o6_ div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:12px;background:rgb(48, 48, 48);border:1px solid rgba(255, 255, 255, 0.15);border-radius:2px;pointer-events:none;z-index:100;}#chatgpt-mermaid-_r_4o6_ .flowchartTitleText{text-anchor:middle;font-size:18px;fill:rgb(237, 237, 237);}#chatgpt-mermaid-_r_4o6_ rect.text{fill:none;stroke-width:0;}#chatgpt-mermaid-_r_4o6_ .icon-shape,#chatgpt-mermaid-_r_4o6_ .image-shape{background-color:rgb(0, 0, 0);text-align:center;}#chatgpt-mermaid-_r_4o6_ .icon-shape p,#chatgpt-mermaid-_r_4o6_ .image-shape p{background-color:rgb(0, 0, 0);padding:2px;}#chatgpt-mermaid-_r_4o6_ .icon-shape .label rect,#chatgpt-mermaid-_r_4o6_ .image-shape .label rect{opacity:0.5;background-color:rgb(0, 0, 0);fill:rgb(0, 0, 0);}#chatgpt-mermaid-_r_4o6_ .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#chatgpt-mermaid-_r_4o6_ .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#chatgpt-mermaid-_r_4o6_ .node .neo-node{stroke:rgb(31, 78, 148);}#chatgpt-mermaid-_r_4o6_ [data-look="neo"].node rect,#chatgpt-mermaid-_r_4o6_ [data-look="neo"].cluster rect,#chatgpt-mermaid-_r_4o6_ [data-look="neo"].node polygon{stroke:url(#chatgpt-mermaid-_r_4o6_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_4o6_ [data-look="neo"].swimlane.cluster rect{filter:none;}#chatgpt-mermaid-_r_4o6_ [data-look="neo"].node path{stroke:url(#chatgpt-mermaid-_r_4o6_-gradient);stroke-width:1px;}#chatgpt-mermaid-_r_4o6_ [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_4o6_ [data-look="neo"].node .neo-line path{stroke:rgb(31, 78, 148);filter:none;}#chatgpt-mermaid-_r_4o6_ [data-look="neo"].node circle{stroke:url(#chatgpt-mermaid-_r_4o6_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_4o6_ [data-look="neo"].node circle .state-start{fill:#000000;}#chatgpt-mermaid-_r_4o6_ [data-look="neo"].icon-shape .icon{fill:url(#chatgpt-mermaid-_r_4o6_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_4o6_ [data-look="neo"].icon-shape .icon-neo path{stroke:url(#chatgpt-mermaid-_r_4o6_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_4o6_ .node text{font-size:14px;font-weight:600;letter-spacing:normal;fill:rgb(153, 206, 255);}#chatgpt-mermaid-_r_4o6_ .edgeLabels text{font-size:13px;font-weight:600;letter-spacing:-0.08px;fill:rgb(153, 206, 255);}#chatgpt-mermaid-_r_4o6_ .node tspan[font-weight="normal"],#chatgpt-mermaid-_r_4o6_ .edgeLabels tspan[font-weight="normal"]{font-weight:600;}#chatgpt-mermaid-_r_4o6_ .edgeLabel .label rect{opacity:1;rx:13px;ry:13px;fill:rgb(0, 14, 26);stroke:rgb(26, 62, 95);stroke-width:1px;}#chatgpt-mermaid-_r_4o6_ .node rect,#chatgpt-mermaid-_r_4o6_ .node circle,#chatgpt-mermaid-_r_4o6_ .node ellipse,#chatgpt-mermaid-_r_4o6_ .node polygon,#chatgpt-mermaid-_r_4o6_ .node path{fill:rgb(0, 40, 77);stroke:rgba(255, 255, 255, 0.1);stroke-width:1px;}#chatgpt-mermaid-_r_4o6_ .node rect{rx:16px;ry:16px;}#chatgpt-mermaid-_r_4o6_ .mermaid-decision .label-container{fill:rgb(0, 14, 26);stroke:rgb(26, 62, 95);stroke-dasharray:2,2;}#chatgpt-mermaid-_r_4o6_ .edgePaths .flowchart-link{stroke:rgb(175, 175, 175);stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;}#chatgpt-mermaid-_r_4o6_ .marker{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-_r_4o6_ :root{--mermaid-font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";}#chatgpt-mermaid-_r_4o6_ .primary rect{fill:rgb(71, 85, 105)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4o6_ .primary polygon{fill:rgb(71, 85, 105)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4o6_ .primary ellipse{fill:rgb(71, 85, 105)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4o6_ .primary circle{fill:rgb(71, 85, 105)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4o6_ .primary path{fill:rgb(71, 85, 105)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4o6_ .primary tspan{fill:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4o6_ .success rect{fill:rgb(13, 148, 136)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4o6_ .success polygon{fill:rgb(13, 148, 136)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4o6_ .success ellipse{fill:rgb(13, 148, 136)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4o6_ .success circle{fill:rgb(13, 148, 136)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4o6_ .success path{fill:rgb(13, 148, 136)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4o6_ .success tspan{fill:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4o6_ .warning rect{fill:rgb(217, 119, 6)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4o6_ .warning polygon{fill:rgb(217, 119, 6)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4o6_ .warning ellipse{fill:rgb(217, 119, 6)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4o6_ .warning circle{fill:rgb(217, 119, 6)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4o6_ .warning path{fill:rgb(217, 119, 6)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4o6_ .warning tspan{fill:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4o6_ .ai rect{fill:rgb(99, 102, 241)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4o6_ .ai polygon{fill:rgb(99, 102, 241)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4o6_ .ai ellipse{fill:rgb(99, 102, 241)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4o6_ .ai circle{fill:rgb(99, 102, 241)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4o6_ .ai path{fill:rgb(99, 102, 241)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4o6_ .ai tspan{fill:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4o6_ .secondary rect{fill:rgb(100, 116, 139)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4o6_ .secondary polygon{fill:rgb(100, 116, 139)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4o6_ .secondary ellipse{fill:rgb(100, 116, 139)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4o6_ .secondary circle{fill:rgb(100, 116, 139)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4o6_ .secondary path{fill:rgb(100, 116, 139)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4o6_ .secondary tspan{fill:rgb(255, 255, 255)!important;}DaywellHomePLANLIVETHINKStatisticsSettingsTasksCalendarProjectsGoalsHabitsHabit CalendarActivity HeatmapFitnessRoutinesChatInsightsPlans
+
+
+
+
+
+
+04 — HOME: The unified dashboard
+This is the most important screen in the application.
+
+The home screen is not merely a summary page. It is the place where PLAN and LIVE become interconnected.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+15
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Proposed layout
+Desktop — 3-column layout inspired by your first reference
+Top navigation
+Logo · Navigation · Search · Quick add · Profile
+Column 1
+
+Today's habits
+
+Streak widget
+
+Activity summary
+
+Quick insights
+
+
+Column 2
+
+Today's tasks
+
+Priority tasks
+
+Upcoming tasks
+
+Goal progress
+
+
+Column 3
+
+Daily calendar
+
+Time blocks
+
+Upcoming events
+
+Schedule overview
+
+
+
+Conceptual layout, not a final wireframe. Widgets will be adjusted to avoid overcrowding.
+Home widgets
+Widget	Functionality
+Welcome header	Date, greeting, optional personal message
+Today's habits	Quick completion without leaving Home
+Today's tasks	Tasks grouped by priority or status
+Calendar	Today's schedule and time blocks
+Streak summary	Current streak and habit consistency
+Goal progress	Progress of selected active goals
+Quick add	Task, habit, event, goal or workout
+Daily progress	Completion summary across PLAN and LIVE
+Think insight	Optional contextual AI insight
+
+Dashboard behavior
+- Widgets should be responsive.
+- Habit completion should update instantly.
+- Completing a task updates relevant progress.
+- Tasks scheduled on the calendar should be reflected in the daily view.
+- Widget visibility should eventually be configurable.
+- Quick add should work from anywhere in the application.
+- Clicking a widget should take the user into its full module.
+We shouldn't attempt to implement a customizable drag-and-drop dashboard in the first version. First build the layout and widget behavior properly; customization can come later.
+
+05 — PLAN: Full functional specification
+PLAN = the organizational engine.
+5.1 Tasks
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+10
+
+
+
+
+
+
+
+
+
+
+
+Task attributes
+Each task should support:
+Attribute	Purpose
+Title	Required task name
+Description	Optional details
+Status	Todo, In Progress, Completed
+Priority	Low, Medium, High, Urgent
+Due date	Deadline
+Start date	Optional planning date
+Scheduled time	Optional time block
+Estimated duration	Optional estimated time
+Category	Work, Study, Personal, etc.
+Project	Optional associated project
+Goal	Optional associated goal
+Recurrence	Optional repeat rule
+Subtasks	Optional breakdown
+Reminder	Optional reminder
+Tags	Custom classification
+
+Task views
+- All tasks.
+- Today.
+- Upcoming.
+- Overdue.
+- Completed.
+- Priority.
+- Project-specific.
+- Calendar view.
+- List view.
+Task functionality
+- Create, edit, delete and archive.
+- Complete and reopen.
+- Search and filter.
+- Sorting.
+- Recurring tasks.
+- Subtasks.
+- Task reminders.
+- Date changes.
+- Task scheduling.
+Recurring task examples
+- Every day.
+- Every weekday.
+- Every week.
+- Custom days of the week.
+- Monthly recurrence.
+Recurring tasks must be handled by recurrence logic, not by manually duplicating tasks without tracking their relationship.
+5.2 Calendar
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+8
+
+
+
+
+
+
+
+
+
+
+
+The calendar is the temporal backbone of PLAN.
+Calendar views
+- Day.
+- Week.
+- Month.
+- Agenda.
+Calendar contents
+- Scheduled tasks.
+- Calendar events.
+- Time blocks.
+- Deadlines.
+- Optional workout sessions.
+Calendar functionality
+- Navigate dates.
+- Schedule tasks.
+- Create events.
+- Edit scheduled time.
+- View conflicts.
+- Filter by category.
+- Show task completion state.
+Event attributes
+- Title.
+- Description.
+- Start time.
+- End time.
+- Location, optional.
+- Category.
+- Reminder.
+- Recurrence.
+- Related task, optional.
+We should distinguish a deadline from an actual scheduled time block. A task due on Thursday doesn't necessarily mean the user has scheduled it for Thursday at 4 PM.
+5.3 Projects
+Projects organize multiple tasks around a larger outcome.
+
+Examples:
+- College assignment.
+- Personal software project.
+- Internship preparation.
+- Fitness program.
+- Learning roadmap.
+Project attributes
+- Name.
+- Description.
+- Status.
+- Start date.
+- Target date.
+- Color.
+- Related goal.
+- Tasks.
+- Milestones.
+- Progress.
+Project statuses
+- Planned.
+- Active.
+- On Hold.
+- Completed.
+- Archived.
+Project view
+Each project should have:
+- Project overview.
+- Progress.
+- Tasks.
+- Milestones.
+- Timeline.
+- Project notes.
+5.4 Goals
+Goals connect long-term intentions to actionable work.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+12
+
+
+
+
+
+
+
+
+
+
+
+Goal hierarchy
+GOAL
+
+Become proficient in backend development
+
+MILESTONES
+1. Learn Node.js fundamentals
+2. Learn Express and REST APIs
+3. Understand database integration
+4. Build and deploy a backend project
+
+TASKS
+- Complete Node.js lessons
+- Practice API development
+- Build authentication
+
+Goal attributes
+- Name.
+- Description.
+- Target date.
+- Status.
+- Progress.
+- Milestones.
+- Linked projects.
+- Linked tasks.
+- Optional habit associations.
+Goal statuses
+- Active.
+- Paused.
+- Completed.
+- Abandoned.
+Goal functionality
+- Progress tracking.
+- Milestones.
+- Linked tasks.
+- Linked projects.
+- Deadline tracking.
+- Goal progress visualization.
+AI-assisted goal breakdown is reserved for THINK. Goals and milestones must work manually without AI.
+
+06 — LIVE: Full functional specification
+LIVE = the consistency engine.
+
+This module should be one of the most visually satisfying parts of the product.
+6.1 Habits
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+10
+
+
+
+
+
+
+
+
+
+
+
+Habit attributes
+Attribute	Purpose
+Name	Habit title
+Description	Optional details
+Frequency	Daily, weekly or custom
+Target	Target completion frequency
+Unit	Optional measurable unit
+Start date	When habit tracking begins
+Status	Active, Paused, Archived
+Color	Visual identity
+Icon	Habit visual
+Reminder	Optional reminder
+Category	Health, Learning, etc.
+Tracking type	Boolean or measurable
+Goal association	Optional linked goal
+
+Tracking types
+Binary habit
+
+Did you complete the habit today?
+Example: Read today, meditate today, exercise today.
+Measurable habit
+
+How much did you accomplish?
+Example: 2 litres of water, 30 minutes of reading, 8,000 steps.
+
+Frequency system
+- Every day.
+- Specific weekdays.
+- N times per week.
+- Custom schedules.
+For example:
+Workout
+3 times per weekMon · Wed · Sat
+
+The habit calendar should understand which days the habit was actually scheduled.
+
+An unscheduled day must not be considered a failure.
+6.2 Streaks
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+8
+
+
+
+
+
+
+
+
+
+
+
+Streak functionality
+- Current streak.
+- Longest streak.
+- Habit-specific streaks.
+- Streak milestone notifications.
+- Streak history.
+Streak calculation rules
+These need to be clearly defined in implementation:
+- A streak depends on the habit's schedule.
+- Unscheduled days don't break a streak.
+- Scheduled days that aren't completed break the streak.
+- Streaks should account for the user's local timezone.
+- Completion should be evaluated consistently for measurable habits.
+- Pausing a habit should not silently rewrite historical records.
+We should define the precise behavior for weekly frequency habits before implementation.
+6.3 Habit calendar
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+8
+
+
+
+
+
+
+
+
+
+
+
+Monthly habit view.
+Calendar states
+State	Meaning
+Completed	Habit fulfilled
+Partial	Measurable progress below target
+Missed	Scheduled day not fulfilled
+Pending	Current scheduled day not yet resolved
+Unscheduled	Habit wasn't scheduled
+
+Interaction
+- Navigate month.
+- Click a date.
+- See habits and status.
+- Edit daily progress.
+- View completion summary.
+- See current streak.
+- See monthly completion rate.
+6.4 Activity heatmap
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Yearly activity view.
+
+This is the fourth-reference-inspired visual concept.
+Heatmap functionality
+- Year-long grid.
+- Weekly columns.
+- Daily intensity.
+- Hover or click for details.
+- Monthly breakdown.
+- Activity statistics.
+Intensity calculation
+I would avoid a simplistic "number of checkboxes clicked" calculation.
+
+Instead, intensity could be derived from the proportion of scheduled habits completed that day.
+
+For example:
+Completion	Heatmap intensity
+0%	No activity / missed scheduled activity
+1–25%	Low
+26–50%	Moderate
+51–75%	High
+76–100%	Very high
+
+This is a provisional scale. We will refine it when implementing. Unscheduled days and days without applicable tracking need separate semantics, even if their visual appearance is similar.
+
+The heatmap should be honest, understandable and consistent.
+6.5 Weekly habit matrix
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+12
+
+
+
+
+
+
+
+
+
+
+
+This should be a dedicated view inside LIVE.
+Features
+- Weekly overview.
+- Rows = habits.
+- Columns = days.
+- Completion state.
+- Habit-specific progress.
+- Weekly completion percentage.
+- Clickable cells.
+- Week navigation.
+We should also include a compact summary:
+- Habits completed.
+- Completion percentage.
+- Best performing habit.
+- Habit needing attention.
+6.6 Fitness and workouts
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+13
+
+
+
+
+
+
+
+
+
+
+
+We should include fitness, but avoid turning the project into an entire gym-management application.
+Workout logging
+- Workout name.
+- Date.
+- Duration.
+- Workout type.
+- Notes.
+- Optional exercise list.
+- Optional set, repetition and weight tracking.
+Workout history
+- Workout calendar.
+- Weekly workout frequency.
+- Workout duration trends.
+- Previous sessions.
+Scope
+Fitness logging is included. Advanced fitness programming, nutrition planning, calorie tracking and wearable integrations are deferred.
+6.7 Routines
+Routines are predefined sequences of actions.
+
+Examples:
+- Morning routine.
+- Night routine.
+- Study routine.
+- Workout preparation.
+Routine functionality
+- Create a routine.
+- Add steps.
+- Reorder steps.
+- Mark steps complete.
+- Track completion.
+- Optional schedule.
+Routines should initially remain lightweight. We don't need an elaborate routine automation engine.
+
+
+07 — THINK: AI specification
+AI is the intelligence layer, not the foundation.
+
+We won't implement THINK during the first few development phases.
+
+We first establish the PLAN and LIVE data systems. THINK comes afterward and is designed to interact with the actual systems.
+7.1 THINK interface
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+11
+
+
+
+
+
+
+
+
+
+
+
+Proposed interface
+- Conversational interface.
+- Contextual prompts.
+- Chat history.
+- Suggested actions.
+- Plan summaries.
+- Insight cards.
+- Action confirmations.
+7.2 AI capabilities
+A. Daily planning
+The user asks:
+Plan my day. I have three pending tasks, an exam next week and I want to fit in a workout.
+
+The assistant should:
+1. Retrieve relevant tasks.
+2. Retrieve the user's schedule.
+3. Retrieve relevant goals.
+4. Retrieve their habit schedule.
+5. Consider available time.
+6. Propose a plan.
+7. Allow the user to accept, edit or reject it.
+It should not automatically modify the calendar before authorization.
+B. Adaptive replanning
+The AI considers:
+- Incomplete tasks.
+- Deadlines.
+- Priority.
+- Existing schedule.
+- Available time.
+- Goal priorities.
+It proposes a revised schedule.
+C. Goal planning
+User:
+I want to learn full-stack development in six months.
+
+The AI can:
+- Clarify the goal.
+- Propose milestones.
+- Suggest a roadmap.
+- Generate actionable tasks.
+- Suggest supporting habits.
+- Suggest a schedule.
+The user decides what enters PLAN and LIVE.
+D. Personal insights
+The AI may analyze:
+- Task completion trends.
+- Habit consistency.
+- Schedule patterns.
+- Goal progress.
+- Workload.
+- Missed deadlines.
+It could generate insights such as:
+You completed most of your study tasks this week, but three were postponed. Your Wednesday schedule was particularly overloaded.
+
+These must be grounded in actual data.
+E. Conversational actions
+Eventually, THINK should have application tools.
+#chatgpt-mermaid-_r_4t4_ :is(.node,.pele-node).success :is(rect,circle,ellipse,polygon,path):where(:not(.label *)) {fill:#1d3827;stroke:#194b2d}#chatgpt-mermaid-_r_4t4_ :is(.node,.pele-node).success [fill="none"]:where(:not(.label *)) {fill:none}#chatgpt-mermaid-_r_4t4_ :is(.node,.pele-node).success [stroke="none"]:where(:not(.label *)) {stroke:none}#chatgpt-mermaid-_r_4t4_ :is(.node,.pele-node).success :where(text,.label,.nodeLabel) {fill:#53b559;color:#53b559}#chatgpt-mermaid-_r_4t4_ :is(.node,.pele-node).warning :is(rect,circle,ellipse,polygon,path):where(:not(.label *)) {fill:#442d21;stroke:#613721}#chatgpt-mermaid-_r_4t4_ :is(.node,.pele-node).warning [fill="none"]:where(:not(.label *)) {fill:none}#chatgpt-mermaid-_r_4t4_ :is(.node,.pele-node).warning [stroke="none"]:where(:not(.label *)) {stroke:none}#chatgpt-mermaid-_r_4t4_ :is(.node,.pele-node).warning :where(text,.label,.nodeLabel) {fill:#ffffff;color:#ffffff}#chatgpt-mermaid-_r_4t4_{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;fill:rgb(237, 237, 237);}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#chatgpt-mermaid-_r_4t4_ .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-_r_4t4_ .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-_r_4t4_ .error-icon{fill:rgb(48, 48, 48);}#chatgpt-mermaid-_r_4t4_ .error-text{fill:rgb(237, 237, 237);stroke:rgb(237, 237, 237);}#chatgpt-mermaid-_r_4t4_ .edge-thickness-normal{stroke-width:1px;}#chatgpt-mermaid-_r_4t4_ .edge-thickness-thick{stroke-width:3.5px;}#chatgpt-mermaid-_r_4t4_ .edge-pattern-solid{stroke-dasharray:0;}#chatgpt-mermaid-_r_4t4_ .edge-thickness-invisible{stroke-width:0;fill:none;}#chatgpt-mermaid-_r_4t4_ .edge-pattern-dashed{stroke-dasharray:3;}#chatgpt-mermaid-_r_4t4_ .edge-pattern-dotted{stroke-dasharray:2;}#chatgpt-mermaid-_r_4t4_ .marker{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-_r_4t4_ .marker.cross{stroke:rgb(175, 175, 175);}#chatgpt-mermaid-_r_4t4_ svg{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;}#chatgpt-mermaid-_r_4t4_ p{margin:0;}#chatgpt-mermaid-_r_4t4_ .label{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";color:rgb(237, 237, 237);}#chatgpt-mermaid-_r_4t4_ .cluster-label text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-_r_4t4_ .cluster-label span{color:rgb(237, 237, 237);}#chatgpt-mermaid-_r_4t4_ .cluster-label span p{background-color:transparent;}#chatgpt-mermaid-_r_4t4_ .label text,#chatgpt-mermaid-_r_4t4_ span{fill:rgb(237, 237, 237);color:rgb(237, 237, 237);}#chatgpt-mermaid-_r_4t4_ .node rect,#chatgpt-mermaid-_r_4t4_ .node circle,#chatgpt-mermaid-_r_4t4_ .node ellipse,#chatgpt-mermaid-_r_4t4_ .node polygon,#chatgpt-mermaid-_r_4t4_ .node path{fill:rgb(9, 23, 44);stroke:rgb(31, 78, 148);stroke-width:1px;}#chatgpt-mermaid-_r_4t4_ .rough-node .label text,#chatgpt-mermaid-_r_4t4_ .node .label text,#chatgpt-mermaid-_r_4t4_ .image-shape .label,#chatgpt-mermaid-_r_4t4_ .icon-shape .label{text-anchor:middle;}#chatgpt-mermaid-_r_4t4_ .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#chatgpt-mermaid-_r_4t4_ .rough-node .label,#chatgpt-mermaid-_r_4t4_ .node .label,#chatgpt-mermaid-_r_4t4_ .image-shape .label,#chatgpt-mermaid-_r_4t4_ .icon-shape .label{text-align:center;}#chatgpt-mermaid-_r_4t4_ .node.clickable{cursor:pointer;}#chatgpt-mermaid-_r_4t4_ .root .anchor path{fill:rgb(175, 175, 175)!important;stroke-width:0;stroke:rgb(175, 175, 175);}#chatgpt-mermaid-_r_4t4_ .arrowheadPath{fill:rgb(175, 175, 175);}#chatgpt-mermaid-_r_4t4_ .edgePath .path{stroke:rgb(175, 175, 175);stroke-width:1px;}#chatgpt-mermaid-_r_4t4_ .flowchart-link{stroke:rgb(175, 175, 175);fill:none;}#chatgpt-mermaid-_r_4t4_ .edgeLabel{background-color:rgb(0, 0, 0);text-align:center;}#chatgpt-mermaid-_r_4t4_ .edgeLabel p{background-color:rgb(0, 0, 0);}#chatgpt-mermaid-_r_4t4_ .edgeLabel rect{opacity:0.5;background-color:rgb(0, 0, 0);fill:rgb(0, 0, 0);}#chatgpt-mermaid-_r_4t4_ .labelBkg{background-color:rgba(0, 0, 0, 0.5);}#chatgpt-mermaid-_r_4t4_ .cluster rect{fill:rgb(48, 48, 48);stroke:rgba(255, 255, 255, 0.15);stroke-width:1px;}#chatgpt-mermaid-_r_4t4_ .cluster text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-_r_4t4_ .cluster span{color:rgb(237, 237, 237);}#chatgpt-mermaid-_r_4t4_ div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:12px;background:rgb(48, 48, 48);border:1px solid rgba(255, 255, 255, 0.15);border-radius:2px;pointer-events:none;z-index:100;}#chatgpt-mermaid-_r_4t4_ .flowchartTitleText{text-anchor:middle;font-size:18px;fill:rgb(237, 237, 237);}#chatgpt-mermaid-_r_4t4_ rect.text{fill:none;stroke-width:0;}#chatgpt-mermaid-_r_4t4_ .icon-shape,#chatgpt-mermaid-_r_4t4_ .image-shape{background-color:rgb(0, 0, 0);text-align:center;}#chatgpt-mermaid-_r_4t4_ .icon-shape p,#chatgpt-mermaid-_r_4t4_ .image-shape p{background-color:rgb(0, 0, 0);padding:2px;}#chatgpt-mermaid-_r_4t4_ .icon-shape .label rect,#chatgpt-mermaid-_r_4t4_ .image-shape .label rect{opacity:0.5;background-color:rgb(0, 0, 0);fill:rgb(0, 0, 0);}#chatgpt-mermaid-_r_4t4_ .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#chatgpt-mermaid-_r_4t4_ .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#chatgpt-mermaid-_r_4t4_ .node .neo-node{stroke:rgb(31, 78, 148);}#chatgpt-mermaid-_r_4t4_ [data-look="neo"].node rect,#chatgpt-mermaid-_r_4t4_ [data-look="neo"].cluster rect,#chatgpt-mermaid-_r_4t4_ [data-look="neo"].node polygon{stroke:url(#chatgpt-mermaid-_r_4t4_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_4t4_ [data-look="neo"].swimlane.cluster rect{filter:none;}#chatgpt-mermaid-_r_4t4_ [data-look="neo"].node path{stroke:url(#chatgpt-mermaid-_r_4t4_-gradient);stroke-width:1px;}#chatgpt-mermaid-_r_4t4_ [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_4t4_ [data-look="neo"].node .neo-line path{stroke:rgb(31, 78, 148);filter:none;}#chatgpt-mermaid-_r_4t4_ [data-look="neo"].node circle{stroke:url(#chatgpt-mermaid-_r_4t4_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_4t4_ [data-look="neo"].node circle .state-start{fill:#000000;}#chatgpt-mermaid-_r_4t4_ [data-look="neo"].icon-shape .icon{fill:url(#chatgpt-mermaid-_r_4t4_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_4t4_ [data-look="neo"].icon-shape .icon-neo path{stroke:url(#chatgpt-mermaid-_r_4t4_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_4t4_ .node text{font-size:14px;font-weight:600;letter-spacing:normal;fill:rgb(153, 206, 255);}#chatgpt-mermaid-_r_4t4_ .edgeLabels text{font-size:13px;font-weight:600;letter-spacing:-0.08px;fill:rgb(153, 206, 255);}#chatgpt-mermaid-_r_4t4_ .node tspan[font-weight="normal"],#chatgpt-mermaid-_r_4t4_ .edgeLabels tspan[font-weight="normal"]{font-weight:600;}#chatgpt-mermaid-_r_4t4_ .edgeLabel .label rect{opacity:1;rx:13px;ry:13px;fill:rgb(0, 14, 26);stroke:rgb(26, 62, 95);stroke-width:1px;}#chatgpt-mermaid-_r_4t4_ .node rect,#chatgpt-mermaid-_r_4t4_ .node circle,#chatgpt-mermaid-_r_4t4_ .node ellipse,#chatgpt-mermaid-_r_4t4_ .node polygon,#chatgpt-mermaid-_r_4t4_ .node path{fill:rgb(0, 40, 77);stroke:rgba(255, 255, 255, 0.1);stroke-width:1px;}#chatgpt-mermaid-_r_4t4_ .node rect{rx:16px;ry:16px;}#chatgpt-mermaid-_r_4t4_ .mermaid-decision .label-container{fill:rgb(0, 14, 26);stroke:rgb(26, 62, 95);stroke-dasharray:2,2;}#chatgpt-mermaid-_r_4t4_ .edgePaths .flowchart-link{stroke:rgb(175, 175, 175);stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;}#chatgpt-mermaid-_r_4t4_ .marker{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-_r_4t4_ :root{--mermaid-font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";}#chatgpt-mermaid-_r_4t4_ .primary rect{fill:rgb(71, 85, 105)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4t4_ .primary polygon{fill:rgb(71, 85, 105)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4t4_ .primary ellipse{fill:rgb(71, 85, 105)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4t4_ .primary circle{fill:rgb(71, 85, 105)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4t4_ .primary path{fill:rgb(71, 85, 105)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4t4_ .primary tspan{fill:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4t4_ .ai rect{fill:rgb(99, 102, 241)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4t4_ .ai polygon{fill:rgb(99, 102, 241)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4t4_ .ai ellipse{fill:rgb(99, 102, 241)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4t4_ .ai circle{fill:rgb(99, 102, 241)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4t4_ .ai path{fill:rgb(99, 102, 241)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4t4_ .ai tspan{fill:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4t4_ .success rect{fill:rgb(13, 148, 136)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4t4_ .success polygon{fill:rgb(13, 148, 136)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4t4_ .success ellipse{fill:rgb(13, 148, 136)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4t4_ .success circle{fill:rgb(13, 148, 136)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4t4_ .success path{fill:rgb(13, 148, 136)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4t4_ .success tspan{fill:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4t4_ .warning rect{fill:rgb(217, 119, 6)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4t4_ .warning polygon{fill:rgb(217, 119, 6)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4t4_ .warning ellipse{fill:rgb(217, 119, 6)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4t4_ .warning circle{fill:rgb(217, 119, 6)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4t4_ .warning path{fill:rgb(217, 119, 6)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4t4_ .warning tspan{fill:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4t4_ .secondary rect{fill:rgb(100, 116, 139)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4t4_ .secondary polygon{fill:rgb(100, 116, 139)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4t4_ .secondary ellipse{fill:rgb(100, 116, 139)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4t4_ .secondary circle{fill:rgb(100, 116, 139)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4t4_ .secondary path{fill:rgb(100, 116, 139)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4t4_ .secondary tspan{fill:rgb(255, 255, 255)!important;}User asks AIAI interprets requestRetrieve relevant contextGenerate proposalAction required?Respond with explanationShow proposed actionUser approves?Execute validated actionCancel or reviseUpdate application stateNoYesYesNo
+
+
+
+
+
+Possible tools:
+- create_task
+- update_task
+- schedule_task
+- create_goal
+- create_milestone
+- create_habit
+- log_habit
+- create_routine
+- get_daily_summary
+- get_weekly_statistics
+AI tool actions must be validated by the backend. The AI cannot bypass permissions, application rules or user confirmation requirements.
+7.3 AI boundaries
+AI may	AI must not
+Analyze user data	Invent activity data
+Propose schedules	Silently overwrite schedules
+Generate task plans	Create arbitrary actions without authorization
+Identify patterns	Present unsupported conclusions as facts
+Suggest habits	Force habits into the user's tracker
+Explain progress	Alter historical records without explicit permission
+
+
+08 — STATISTICS: The unified progress system
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+12
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Statistics will have a dedicated page that connects PLAN and LIVE.
+PLAN analytics
+- Task completion rate.
+- Tasks completed by week.
+- Tasks completed by month.
+- Overdue task trends.
+- Priority distribution.
+- Project progress.
+- Goal progress.
+- Planned versus completed work, where time tracking exists.
+LIVE analytics
+- Habit completion rate.
+- Current streaks.
+- Longest streaks.
+- Habit consistency.
+- Workout frequency.
+- Activity heatmap.
+- Weekly and monthly summaries.
+Unified analytics
+- Daily completion overview.
+- Weekly activity.
+- Habit consistency versus task completion.
+- Goal progress over time.
+- Personal activity trends.
+We shouldn't turn statistics into a collection of arbitrary charts. Every chart should answer a meaningful question.
+
+For example:
+- Habit completion trend: Am I becoming more consistent?
+- Task completion trend: Am I finishing what I plan?
+- Weekly activity: What does my week look like?
+- Goal progress: Am I moving towards my goals?
+
+09 — Quick Add & interaction system
+Quick Add should be available throughout the application.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+13
+
+
+
+
+
+
+
+
+
+
+
+Clicking Quick Add opens a lightweight menu:
+- Task.
+- Habit.
+- Event.
+- Goal.
+- Workout.
+- Note, potentially later.
+The user should never have to navigate through three pages just to create a task.
+Global interaction principles
+- Keyboard-friendly.
+- Minimal steps.
+- Clear feedback.
+- Undo where appropriate.
+- Confirm destructive actions.
+- Avoid unnecessary modal layers.
+- Use inline editing where practical.
+Notifications
+Initially:
+- Task reminders.
+- Habit reminders.
+- Deadline notifications.
+- Goal milestone notifications.
+Later:
+- Weekly summaries.
+- AI-generated insights.
+- Adaptive reminders.
+
+
+10 — UI/UX design system
+The design language we establish before implementation
+10.1 Visual direction
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+10
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Theme: Dark-first, sophisticated, calm, minimal and visually rewarding.
+Base palette — provisional
+Background
+
+#151515
+
+
+Surface
+
+#202020
+
+
+Elevated surface
+
+#292929
+
+
+Coral
+
+#E59585
+
+
+Mint
+
+#96D2C5
+
+
+Orange
+
+#F19A50
+
+
+Blue
+
+#A9C8E9
+
+
+AI accent
+
+#8C82E8
+
+
+
+
+These are initial design tokens, not final color decisions. We will test contrast and visual consistency before locking them in.
+Color usage
+Color	Purpose
+Coral	Task highlights, important cards, selected visual elements
+Mint	Habit success, completed actions, progress
+Orange	Streaks, activity, LIVE highlights
+Blue	Secondary informational cards
+Purple	THINK, AI elements
+Neutral gray	Surfaces, inactive states, borders
+
+The colors should be accents and semantic signals, not a rainbow dashboard.
+10.2 Typography
+I'd use a modern sans-serif typeface.
+
+Possible choices:
+- Inter.
+- Geist.
+- Manrope.
+My initial preference: Manrope or Geist.
+
+The typography should:
+- Feel modern.
+- Be readable at small sizes.
+- Support numerical statistics well.
+- Have clear hierarchy.
+- Avoid excessive font weights.
+10.3 UI components
+We will build a reusable design system.
+Core components
+- Buttons.
+- Icon buttons.
+- Inputs.
+- Selects.
+- Dropdowns.
+- Cards.
+- Badges.
+- Progress bars.
+- Progress rings.
+- Checkboxes.
+- Toggle switches.
+- Calendar cells.
+- Date pickers.
+- Modal dialogs.
+- Tooltips.
+- Sidebar.
+- Navigation.
+- Toasts.
+- Empty states.
+- Skeleton loaders.
+- Charts.
+Interaction styling
+- Subtle transitions.
+- Hover feedback.
+- Press feedback.
+- Smooth but restrained animations.
+- Clear selected states.
+- Accessible contrast.
+- Consistent spacing.
+10.4 Responsive design
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+14
+
+
+
+
+
+
+
+
+
+
+
+We should develop desktop-first because your reference layout is desktop-oriented, but the application must work on mobile.
+Desktop
+- Sidebar.
+- Three-column dashboard.
+- Multi-panel layouts.
+- Full calendar.
+- Detailed statistics.
+Tablet
+- Reduced columns.
+- Compact navigation.
+- Reflowing widgets.
+Mobile
+- Bottom navigation.
+- Single-column dashboard.
+- Mobile task list.
+- Mobile habit logging.
+- Simplified calendar.
+- Quick Add accessible from a central action.
+Mobile isn't a later afterthought. We should test responsive layouts as each module is built, even if desktop is our primary design target.
+
+11 — Architecture direction
+Architecture should support the project without turning it into an unnecessarily complicated enterprise system.
+11.1 Proposed technology stack
+Layer	Proposed technology
+Frontend	React
+Language	TypeScript
+Build tooling	Vite
+Styling	Tailwind CSS
+UI primitives	A reusable component library or carefully built custom components
+Icons	Lucide
+Charts	Recharts
+Backend	Node.js
+API	Express
+Database	PostgreSQL
+ORM	Prisma or Drizzle, to be decided
+Authentication	Firebase Authentication
+AI	Gemini API
+AI tools	Backend-controlled tool calling
+Validation	Zod
+Testing	Vitest + integration testing
+Version control	Git + GitHub
+Deployment	To be selected after architecture and environment testing
+
+This is the proposed stack, not a requirement that Google AI Studio must generate every technology exactly as listed. We will verify what AI Studio supports smoothly and preserve architectural control.
+Why this stack?
+- React helps us build reusable interfaces.
+- TypeScript improves correctness and understanding of data.
+- Node.js allows us to build the API.
+- PostgreSQL gives us relational data modeling.
+- Gemini handles the AI capabilities.
+- Firebase Authentication can simplify identity management.
+- Zod helps validate API inputs.
+- GitHub gives us version control and a recovery path.
+11.2 Application architecture
+#chatgpt-mermaid-_r_4vm_ :is(.node,.pele-node).success :is(rect,circle,ellipse,polygon,path):where(:not(.label *)) {fill:#1d3827;stroke:#194b2d}#chatgpt-mermaid-_r_4vm_ :is(.node,.pele-node).success [fill="none"]:where(:not(.label *)) {fill:none}#chatgpt-mermaid-_r_4vm_ :is(.node,.pele-node).success [stroke="none"]:where(:not(.label *)) {stroke:none}#chatgpt-mermaid-_r_4vm_ :is(.node,.pele-node).success :where(text,.label,.nodeLabel) {fill:#53b559;color:#53b559}#chatgpt-mermaid-_r_4vm_ :is(.node,.pele-node).warning :is(rect,circle,ellipse,polygon,path):where(:not(.label *)) {fill:#442d21;stroke:#613721}#chatgpt-mermaid-_r_4vm_ :is(.node,.pele-node).warning [fill="none"]:where(:not(.label *)) {fill:none}#chatgpt-mermaid-_r_4vm_ :is(.node,.pele-node).warning [stroke="none"]:where(:not(.label *)) {stroke:none}#chatgpt-mermaid-_r_4vm_ :is(.node,.pele-node).warning :where(text,.label,.nodeLabel) {fill:#ffffff;color:#ffffff}#chatgpt-mermaid-_r_4vm_{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;fill:rgb(237, 237, 237);}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#chatgpt-mermaid-_r_4vm_ .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-_r_4vm_ .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-_r_4vm_ .error-icon{fill:rgb(48, 48, 48);}#chatgpt-mermaid-_r_4vm_ .error-text{fill:rgb(237, 237, 237);stroke:rgb(237, 237, 237);}#chatgpt-mermaid-_r_4vm_ .edge-thickness-normal{stroke-width:1px;}#chatgpt-mermaid-_r_4vm_ .edge-thickness-thick{stroke-width:3.5px;}#chatgpt-mermaid-_r_4vm_ .edge-pattern-solid{stroke-dasharray:0;}#chatgpt-mermaid-_r_4vm_ .edge-thickness-invisible{stroke-width:0;fill:none;}#chatgpt-mermaid-_r_4vm_ .edge-pattern-dashed{stroke-dasharray:3;}#chatgpt-mermaid-_r_4vm_ .edge-pattern-dotted{stroke-dasharray:2;}#chatgpt-mermaid-_r_4vm_ .marker{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-_r_4vm_ .marker.cross{stroke:rgb(175, 175, 175);}#chatgpt-mermaid-_r_4vm_ svg{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;}#chatgpt-mermaid-_r_4vm_ p{margin:0;}#chatgpt-mermaid-_r_4vm_ .label{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";color:rgb(237, 237, 237);}#chatgpt-mermaid-_r_4vm_ .cluster-label text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-_r_4vm_ .cluster-label span{color:rgb(237, 237, 237);}#chatgpt-mermaid-_r_4vm_ .cluster-label span p{background-color:transparent;}#chatgpt-mermaid-_r_4vm_ .label text,#chatgpt-mermaid-_r_4vm_ span{fill:rgb(237, 237, 237);color:rgb(237, 237, 237);}#chatgpt-mermaid-_r_4vm_ .node rect,#chatgpt-mermaid-_r_4vm_ .node circle,#chatgpt-mermaid-_r_4vm_ .node ellipse,#chatgpt-mermaid-_r_4vm_ .node polygon,#chatgpt-mermaid-_r_4vm_ .node path{fill:rgb(9, 23, 44);stroke:rgb(31, 78, 148);stroke-width:1px;}#chatgpt-mermaid-_r_4vm_ .rough-node .label text,#chatgpt-mermaid-_r_4vm_ .node .label text,#chatgpt-mermaid-_r_4vm_ .image-shape .label,#chatgpt-mermaid-_r_4vm_ .icon-shape .label{text-anchor:middle;}#chatgpt-mermaid-_r_4vm_ .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#chatgpt-mermaid-_r_4vm_ .rough-node .label,#chatgpt-mermaid-_r_4vm_ .node .label,#chatgpt-mermaid-_r_4vm_ .image-shape .label,#chatgpt-mermaid-_r_4vm_ .icon-shape .label{text-align:center;}#chatgpt-mermaid-_r_4vm_ .node.clickable{cursor:pointer;}#chatgpt-mermaid-_r_4vm_ .root .anchor path{fill:rgb(175, 175, 175)!important;stroke-width:0;stroke:rgb(175, 175, 175);}#chatgpt-mermaid-_r_4vm_ .arrowheadPath{fill:rgb(175, 175, 175);}#chatgpt-mermaid-_r_4vm_ .edgePath .path{stroke:rgb(175, 175, 175);stroke-width:1px;}#chatgpt-mermaid-_r_4vm_ .flowchart-link{stroke:rgb(175, 175, 175);fill:none;}#chatgpt-mermaid-_r_4vm_ .edgeLabel{background-color:rgb(0, 0, 0);text-align:center;}#chatgpt-mermaid-_r_4vm_ .edgeLabel p{background-color:rgb(0, 0, 0);}#chatgpt-mermaid-_r_4vm_ .edgeLabel rect{opacity:0.5;background-color:rgb(0, 0, 0);fill:rgb(0, 0, 0);}#chatgpt-mermaid-_r_4vm_ .labelBkg{background-color:rgba(0, 0, 0, 0.5);}#chatgpt-mermaid-_r_4vm_ .cluster rect{fill:rgb(48, 48, 48);stroke:rgba(255, 255, 255, 0.15);stroke-width:1px;}#chatgpt-mermaid-_r_4vm_ .cluster text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-_r_4vm_ .cluster span{color:rgb(237, 237, 237);}#chatgpt-mermaid-_r_4vm_ div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:12px;background:rgb(48, 48, 48);border:1px solid rgba(255, 255, 255, 0.15);border-radius:2px;pointer-events:none;z-index:100;}#chatgpt-mermaid-_r_4vm_ .flowchartTitleText{text-anchor:middle;font-size:18px;fill:rgb(237, 237, 237);}#chatgpt-mermaid-_r_4vm_ rect.text{fill:none;stroke-width:0;}#chatgpt-mermaid-_r_4vm_ .icon-shape,#chatgpt-mermaid-_r_4vm_ .image-shape{background-color:rgb(0, 0, 0);text-align:center;}#chatgpt-mermaid-_r_4vm_ .icon-shape p,#chatgpt-mermaid-_r_4vm_ .image-shape p{background-color:rgb(0, 0, 0);padding:2px;}#chatgpt-mermaid-_r_4vm_ .icon-shape .label rect,#chatgpt-mermaid-_r_4vm_ .image-shape .label rect{opacity:0.5;background-color:rgb(0, 0, 0);fill:rgb(0, 0, 0);}#chatgpt-mermaid-_r_4vm_ .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#chatgpt-mermaid-_r_4vm_ .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#chatgpt-mermaid-_r_4vm_ .node .neo-node{stroke:rgb(31, 78, 148);}#chatgpt-mermaid-_r_4vm_ [data-look="neo"].node rect,#chatgpt-mermaid-_r_4vm_ [data-look="neo"].cluster rect,#chatgpt-mermaid-_r_4vm_ [data-look="neo"].node polygon{stroke:url(#chatgpt-mermaid-_r_4vm_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_4vm_ [data-look="neo"].swimlane.cluster rect{filter:none;}#chatgpt-mermaid-_r_4vm_ [data-look="neo"].node path{stroke:url(#chatgpt-mermaid-_r_4vm_-gradient);stroke-width:1px;}#chatgpt-mermaid-_r_4vm_ [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_4vm_ [data-look="neo"].node .neo-line path{stroke:rgb(31, 78, 148);filter:none;}#chatgpt-mermaid-_r_4vm_ [data-look="neo"].node circle{stroke:url(#chatgpt-mermaid-_r_4vm_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_4vm_ [data-look="neo"].node circle .state-start{fill:#000000;}#chatgpt-mermaid-_r_4vm_ [data-look="neo"].icon-shape .icon{fill:url(#chatgpt-mermaid-_r_4vm_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_4vm_ [data-look="neo"].icon-shape .icon-neo path{stroke:url(#chatgpt-mermaid-_r_4vm_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_4vm_ .node text{font-size:14px;font-weight:600;letter-spacing:normal;fill:rgb(153, 206, 255);}#chatgpt-mermaid-_r_4vm_ .edgeLabels text{font-size:13px;font-weight:600;letter-spacing:-0.08px;fill:rgb(153, 206, 255);}#chatgpt-mermaid-_r_4vm_ .node tspan[font-weight="normal"],#chatgpt-mermaid-_r_4vm_ .edgeLabels tspan[font-weight="normal"]{font-weight:600;}#chatgpt-mermaid-_r_4vm_ .edgeLabel .label rect{opacity:1;rx:13px;ry:13px;fill:rgb(0, 14, 26);stroke:rgb(26, 62, 95);stroke-width:1px;}#chatgpt-mermaid-_r_4vm_ .node rect,#chatgpt-mermaid-_r_4vm_ .node circle,#chatgpt-mermaid-_r_4vm_ .node ellipse,#chatgpt-mermaid-_r_4vm_ .node polygon,#chatgpt-mermaid-_r_4vm_ .node path{fill:rgb(0, 40, 77);stroke:rgba(255, 255, 255, 0.1);stroke-width:1px;}#chatgpt-mermaid-_r_4vm_ .node rect{rx:16px;ry:16px;}#chatgpt-mermaid-_r_4vm_ .mermaid-decision .label-container{fill:rgb(0, 14, 26);stroke:rgb(26, 62, 95);stroke-dasharray:2,2;}#chatgpt-mermaid-_r_4vm_ .edgePaths .flowchart-link{stroke:rgb(175, 175, 175);stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;}#chatgpt-mermaid-_r_4vm_ .marker{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-_r_4vm_ :root{--mermaid-font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";}#chatgpt-mermaid-_r_4vm_ .primary rect{fill:rgb(71, 85, 105)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4vm_ .primary polygon{fill:rgb(71, 85, 105)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4vm_ .primary ellipse{fill:rgb(71, 85, 105)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4vm_ .primary circle{fill:rgb(71, 85, 105)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4vm_ .primary path{fill:rgb(71, 85, 105)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4vm_ .primary tspan{fill:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4vm_ .success rect{fill:rgb(13, 148, 136)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4vm_ .success polygon{fill:rgb(13, 148, 136)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4vm_ .success ellipse{fill:rgb(13, 148, 136)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4vm_ .success circle{fill:rgb(13, 148, 136)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4vm_ .success path{fill:rgb(13, 148, 136)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4vm_ .success tspan{fill:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4vm_ .ai rect{fill:rgb(99, 102, 241)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4vm_ .ai polygon{fill:rgb(99, 102, 241)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4vm_ .ai ellipse{fill:rgb(99, 102, 241)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4vm_ .ai circle{fill:rgb(99, 102, 241)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4vm_ .ai path{fill:rgb(99, 102, 241)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4vm_ .ai tspan{fill:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4vm_ .warning rect{fill:rgb(217, 119, 6)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4vm_ .warning polygon{fill:rgb(217, 119, 6)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4vm_ .warning ellipse{fill:rgb(217, 119, 6)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4vm_ .warning circle{fill:rgb(217, 119, 6)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4vm_ .warning path{fill:rgb(217, 119, 6)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4vm_ .warning tspan{fill:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4vm_ .secondary rect{fill:rgb(100, 116, 139)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4vm_ .secondary polygon{fill:rgb(100, 116, 139)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4vm_ .secondary ellipse{fill:rgb(100, 116, 139)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4vm_ .secondary circle{fill:rgb(100, 116, 139)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4vm_ .secondary path{fill:rgb(100, 116, 139)!important;color:rgb(255, 255, 255)!important;}#chatgpt-mermaid-_r_4vm_ .secondary tspan{fill:rgb(255, 255, 255)!important;}UserReact FrontendBackend APIAuth and AuthorizationApplication ServicesPostgreSQLAI OrchestrationGemini APINotifications and Scheduling
+
+
+
+
+
+Frontend
+The frontend should be responsible for:
+- UI.
+- Navigation.
+- Input handling.
+- Form validation feedback.
+- State management.
+- API communication.
+- Rendering statistics.
+- Optimistic interactions where safe.
+Backend
+The backend should be responsible for:
+- Authentication verification.
+- Authorization.
+- Business logic.
+- Data validation.
+- Task logic.
+- Habit calculations.
+- Streak calculations.
+- Goal progression.
+- Analytics calculations.
+- AI tool execution.
+- Database access.
+The client must not be trusted to calculate authoritative completion, streak, permissions or sensitive AI actions.
+11.3 Suggested project structure
+
+daywell/
+├── client/
+│   ├── src/
+│   │   ├── app/
+│   │   ├── components/
+│   │   │   ├── ui/
+│   │   │   ├── layout/
+│   │   │   └── shared/
+│   │   ├── features/
+│   │   │   ├── home/
+│   │   │   ├── plan/
+│   │   │   │   ├── tasks/
+│   │   │   │   ├── calendar/
+│   │   │   │   ├── projects/
+│   │   │   │   └── goals/
+│   │   │   ├── live/
+│   │   │   │   ├── habits/
+│   │   │   │   ├── streaks/
+│   │   │   │   ├── heatmap/
+│   │   │   │   ├── fitness/
+│   │   │   │   └── routines/
+│   │   │   ├── think/
+│   │   │   └── statistics/
+│   │   ├── hooks/
+│   │   ├── lib/
+│   │   ├── services/
+│   │   ├── types/
+│   │   └── utils/
+│   └── ...
+├── server/
+│   ├── src/
+│   │   ├── routes/
+│   │   ├── controllers/
+│   │   ├── services/
+│   │   ├── middleware/
+│   │   ├── validators/
+│   │   ├── repositories/
+│   │   ├── modules/
+│   │   ├── ai/
+│   │   ├── jobs/
+│   │   ├── utils/
+│   │   └── ...
+│   └── ...
+├── database/
+│   ├── migrations/
+│   └── documentation/
+├── docs/
+│   ├── blueprint/
+│   ├── architecture/
+│   ├── development-log/
+│   └── decisions/
+├── tests/
+└── README.md
+
+
+
+This is a conceptual structure. We will adapt it to the actual generated environment rather than force unnecessary folder complexity.
+
+12 — Database blueprint
+The database is the foundation of PLAN and LIVE. THINK will later consume this data through controlled services.
+
+We should design the database around meaningful relationships rather than creating isolated tables for each screen.
+12.1 Core entities
+Initial entity inventory
+Entity	Responsibility
+Users	User account and profile
+Tasks	Tasks, deadlines and status
+Task Subtasks	Smaller steps within tasks
+Task Recurrence	Recurrence configuration
+Projects	Project organization
+Project Milestones	Project progress markers
+Goals	Long-term objectives
+Goal Milestones	Progress milestones
+Calendar Events	Events and scheduled activities
+Habits	Habit definitions
+Habit Schedules	Frequency and schedule configuration
+Habit Logs	Daily habit completion records
+Workout Sessions	Fitness session history
+Exercises	Exercise definitions / session exercises
+Exercise Sets	Set-level workout data
+Routines	Routine definitions
+Routine Steps	Ordered routine actions
+Routine Logs	Routine completion history
+Notifications	Notification records
+AI Conversations	AI conversation history
+AI Messages	Individual messages
+AI Action Records	Proposed and executed AI actions
+
+This is a logical entity inventory, not a commitment to 20 separate tables in the initial implementation. We will validate each entity and relationship during schema design.
+12.2 Entity relationships
+#chatgpt-mermaid-_r_501_{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;fill:rgb(237, 237, 237);}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#chatgpt-mermaid-_r_501_ .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-_r_501_ .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-_r_501_ .error-icon{fill:rgb(48, 48, 48);}#chatgpt-mermaid-_r_501_ .error-text{fill:rgb(237, 237, 237);stroke:rgb(237, 237, 237);}#chatgpt-mermaid-_r_501_ .edge-thickness-normal{stroke-width:1px;}#chatgpt-mermaid-_r_501_ .edge-thickness-thick{stroke-width:3.5px;}#chatgpt-mermaid-_r_501_ .edge-pattern-solid{stroke-dasharray:0;}#chatgpt-mermaid-_r_501_ .edge-thickness-invisible{stroke-width:0;fill:none;}#chatgpt-mermaid-_r_501_ .edge-pattern-dashed{stroke-dasharray:3;}#chatgpt-mermaid-_r_501_ .edge-pattern-dotted{stroke-dasharray:2;}#chatgpt-mermaid-_r_501_ .marker{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-_r_501_ .marker.cross{stroke:rgb(175, 175, 175);}#chatgpt-mermaid-_r_501_ svg{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;}#chatgpt-mermaid-_r_501_ p{margin:0;}#chatgpt-mermaid-_r_501_ .entityBox{fill:rgb(9, 23, 44);stroke:rgb(31, 78, 148);}#chatgpt-mermaid-_r_501_ .relationshipLabelBox{fill:rgb(48, 48, 48);opacity:0.7;background-color:rgb(48, 48, 48);}#chatgpt-mermaid-_r_501_ .relationshipLabelBox rect{opacity:0.5;}#chatgpt-mermaid-_r_501_ .labelBkg{background-color:rgba(48, 48, 48, 0.5);}#chatgpt-mermaid-_r_501_ .edgeLabel{background-color:rgb(0, 0, 0);}#chatgpt-mermaid-_r_501_ .edgeLabel .label rect{fill:rgb(0, 0, 0);}#chatgpt-mermaid-_r_501_ .edgeLabel .label text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-_r_501_ .edgeLabel .label{fill:rgb(31, 78, 148);font-size:14px;}#chatgpt-mermaid-_r_501_ .label{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";color:rgb(237, 237, 237);}#chatgpt-mermaid-_r_501_ .edge-pattern-dashed{stroke-dasharray:8,8;}#chatgpt-mermaid-_r_501_ .node rect,#chatgpt-mermaid-_r_501_ .node circle,#chatgpt-mermaid-_r_501_ .node ellipse,#chatgpt-mermaid-_r_501_ .node polygon{fill:rgb(9, 23, 44);stroke:rgb(31, 78, 148);stroke-width:1px;}#chatgpt-mermaid-_r_501_ .relationshipLine{stroke:rgb(175, 175, 175);stroke-width:1px;fill:none;}#chatgpt-mermaid-_r_501_ .marker{fill:none!important;stroke:rgb(175, 175, 175)!important;stroke-width:1;}#chatgpt-mermaid-_r_501_ [data-look=neo].labelBkg{background-color:rgba(48, 48, 48, 0.5);}#chatgpt-mermaid-_r_501_ .node .neo-node{stroke:rgb(31, 78, 148);}#chatgpt-mermaid-_r_501_ [data-look="neo"].node rect,#chatgpt-mermaid-_r_501_ [data-look="neo"].cluster rect,#chatgpt-mermaid-_r_501_ [data-look="neo"].node polygon{stroke:url(#chatgpt-mermaid-_r_501_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_501_ [data-look="neo"].swimlane.cluster rect{filter:none;}#chatgpt-mermaid-_r_501_ [data-look="neo"].node path{stroke:url(#chatgpt-mermaid-_r_501_-gradient);stroke-width:1px;}#chatgpt-mermaid-_r_501_ [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_501_ [data-look="neo"].node .neo-line path{stroke:rgb(31, 78, 148);filter:none;}#chatgpt-mermaid-_r_501_ [data-look="neo"].node circle{stroke:url(#chatgpt-mermaid-_r_501_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_501_ [data-look="neo"].node circle .state-start{fill:#000000;}#chatgpt-mermaid-_r_501_ [data-look="neo"].icon-shape .icon{fill:url(#chatgpt-mermaid-_r_501_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_501_ [data-look="neo"].icon-shape .icon-neo path{stroke:url(#chatgpt-mermaid-_r_501_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_501_ :root{--mermaid-font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";}USERSTASKSPROJECTSGOALSHABITSCALENDAR_EVENTSWORKOUT_SESSIONSROUTINESAI_CONVERSATIONSPROJECT_MILESTONESGOAL_MILESTONESTASK_SUBTASKSTASK_RECURRENCEHABIT_SCHEDULESHABIT_LOGSROUTINE_STEPSROUTINE_LOGSSESSION_EXERCISESEXERCISE_SETSAI_MESSAGESAI_ACTION_RECORDSownsownsownsownsownsownsownsownscontainscontainscontainssupportsconnectscontainsconfiguresschedulesfollowsrecordscontainsrecordscontainscontainscontainstracks
+
+
+
+
+
+Conceptual relationship diagram. The final schema will include additional constraints, ownership, deletion behavior and relationship validation.
+12.3 Critical database design decisions
+Ownership
+Every personal data record should be securely associated with its owner.
+
+Authorization must be enforced server-side.
+Habit history
+Habit logs should be historical records, not just a checkbox on the habit table.
+
+If a habit's name, schedule or frequency changes, previous completion records must remain interpretable.
+Task history
+Task state changes should be handled carefully. We should not lose meaningful completion history through accidental edits.
+Timezones
+Dates for daily habits are not interchangeable with UTC timestamps.
+
+We must explicitly distinguish:
+- User-local habit dates.
+- Event timestamps.
+- Task deadlines.
+- Scheduled time blocks.
+Deletion
+We need appropriate deletion behavior, including whether records are:
+- Deleted.
+- Archived.
+- Retained for historical calculations.
+Data integrity
+The backend must validate:
+- Ownership.
+- Relationships.
+- Schedule consistency.
+- Completion rules.
+- Duplicate records where prohibited.
+- Valid dates.
+- Valid targets and units.
+
+13 — MVP scope: What we will actually build first
+This is the most important scope decision in the blueprint.
+
+We have a large vision, but we cannot build every feature simultaneously.
+Version 1 — Daywell Core
+PLAN + LIVE + unified Home
+No AI yet. No unnecessary complexity.
+
+Home
+- Dashboard layout.
+- Today's tasks.
+- Today's habits.
+- Calendar preview.
+- Quick Add.
+- Daily progress.
+- Streak summary.
+PLAN
+- Tasks.
+- Priority.
+- Status.
+- Deadlines.
+- Categories.
+- Calendar.
+- Projects.
+- Goals.
+- Goal milestones.
+- Task-subtask support.
+LIVE
+- Habits.
+- Habit schedules.
+- Binary habit tracking.
+- Measurable habit tracking.
+- Streaks.
+- Habit calendar.
+- Weekly matrix.
+- Activity heatmap.
+- Basic workout logging.
+- Basic routines.
+Statistics
+- Task completion.
+- Habit completion.
+- Streak statistics.
+- Weekly overview.
+- Activity heatmap.
+- Goal progress.
+Application foundation
+- Authentication.
+- User settings.
+- Responsive design.
+- Database persistence.
+- Backend validation.
+- Basic notifications or reminder infrastructure, subject to implementation complexity.
+- Testing.
+- Deployment.
+Features explicitly deferred
+Not in Version 1
+- THINK / AI assistant.
+- AI goal generation.
+- AI schedule optimization.
+- AI insights.
+- Wearable integrations.
+- Social accountability.
+- Sharing habits.
+- Gamification beyond basic streaks and milestones.
+- Advanced fitness programming.
+- Nutrition tracking.
+- Complex dashboard customization.
+- Full offline synchronization.
+- Third-party calendar synchronization.
+- Advanced notification automation.
+- Premium subscriptions.
+This keeps the first version genuinely achievable while leaving room for an impressive second phase.
+
+14 — Development roadmap
+Build order, not just feature order
+
+We should build the application in controlled phases. Each phase must have a working, verified checkpoint before moving on.
+Phase 0
+Product & foundation
+
+- Finalize blueprint.
+- Establish project repository.
+- Configure AI Studio.
+- Understand project environment.
+- Establish development rules.
+- Create documentation.
+
+Phase 1
+Design system & shell
+
+- Theme.
+- Navigation.
+- Layout.
+- Components.
+- Responsive shell.
+- Dashboard visual foundation.
+
+Phase 2
+Home dashboard
+
+- Dashboard widgets.
+- UI states.
+- Quick Add interface.
+- Calendar preview.
+- Responsive behavior.
+
+Phase 3
+PLAN — Tasks
+
+- Backend.
+- Database.
+- CRUD.
+- Status.
+- Priority.
+- Deadlines.
+- Subtasks.
+- Filters.
+
+Phase 4
+PLAN — Calendar
+
+- Day / week / month.
+- Events.
+- Scheduling.
+- Task integration.
+- Date handling.
+
+Phase 5
+PLAN — Projects & goals
+
+- Projects.
+- Milestones.
+- Goals.
+- Task relationships.
+- Progress.
+
+Phase 6
+LIVE — Habits
+
+- Habit creation.
+- Frequency.
+- Tracking.
+- Binary and measurable habits.
+- Habit logs.
+
+Phase 7
+LIVE — Visual tracking
+
+- Streaks.
+- Habit calendar.
+- Weekly matrix.
+- Heatmap.
+- Analytics.
+
+Phase 8
+LIVE — Fitness & routines
+
+- Workout logging.
+- Workout history.
+- Routines.
+- Routine tracking.
+
+Phase 9
+Unified Statistics
+
+- PLAN analytics.
+- LIVE analytics.
+- Unified insights.
+- Dashboard refinements.
+
+Phase 10
+Testing & polish
+
+- Functional testing.
+- Integration testing.
+- Responsive testing.
+- Bug fixing.
+- Security review.
+- UI polish.
+
+Phase 11
+THINK — AI
+
+- Gemini integration.
+- Context retrieval.
+- AI conversation.
+- Tool calling.
+- Action validation.
+- User confirmations.
+- Insights.
+- AI-assisted planning.
+
+Phase 12
+Deployment & launch
+
+- Production environment.
+- Monitoring.
+- Documentation.
+- Deployment.
+- Project showcase.
+
+
+Each phase has its own Git checkpoint. We never allow AI Studio to make uncontrolled, massive modifications across the entire project just because a new feature is requested.
+
+15 — Our Google AI Studio development strategy
+Google AI Studio is going to be our primary development environment.
+
+Google AI Studio Build mode currently supports full-stack web app development, including a React frontend, server-side Node.js runtime, Firebase integrations, secrets management, GitHub synchronization and deployment workflows. That makes it a reasonable environment for building Daywell incrementally rather than only prototyping its UI. 
+Google AI
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+9
+
+
+
+
+
+
+
+
+
+
+
+How we will work inside AI Studio
+Rule 1 — Never give it the entire project at once
+We will give it controlled tasks.
+
+Bad:
+Build my complete productivity application with habits, goals, AI, fitness, calendar, analytics, authentication and everything else.
+
+Better:
+Implement the application shell with the approved design tokens, sidebar navigation, responsive layout and reusable UI components. Do not implement backend functionality yet. Follow the provided product blueprint.
+
+Then we verify it before proceeding.
+Rule 2 — Every prompt has a specific scope
+Every implementation prompt will include:
+1. What we are implementing.
+2. Existing architecture.
+3. Requirements.
+4. Constraints.
+5. What must not be changed.
+6. Acceptance criteria.
+7. Testing requirements.
+Rule 3 — Understand what AI generates
+Whenever it creates important code:
+- Understand the file's responsibility.
+- Understand how it connects to other files.
+- Understand the API.
+- Understand the database relationship.
+- Understand the logic.
+- Understand the error handling.
+I will help you understand the generated code as we go.
+Rule 4 — Maintain documentation
+We should maintain these files from the beginning:
+Document	Purpose
+PROJECT_BLUEPRINT.md	Product vision, scope and functionality
+ARCHITECTURE.md	Technical architecture
+DATABASE.md	Database schema and relationships
+DESIGN_SYSTEM.md	UI tokens, components and styling
+DEVELOPMENT_LOG.md	What we've implemented and learned
+DECISIONS.md	Important architectural decisions
+README.md	Project overview, setup and usage
+
+Rule 5 — Git checkpoints
+Before substantial changes:
+- Commit the current working version.
+- Implement the feature.
+- Verify.
+- Test.
+- Commit again.
+We should use GitHub as our recovery system and source of truth, not rely solely on AI Studio's chat history.
+Rule 6 — AI Studio doesn't make architectural decisions automatically
+AI Studio is our development tool, not our architect.
+
+We will decide:
+- The architecture.
+- The database structure.
+- The module boundaries.
+- The business rules.
+- The API design.
+- The AI permissions.
+AI Studio helps implement those decisions.
+
+16 — Decisions we have established
+Established product decisions
+- One application, not three separate projects.
+- PLAN and LIVE are the core modules.
+- THINK is the AI intelligence layer.
+- AI is not required for basic task or habit functionality.
+- AI will be implemented after PLAN and LIVE are functional.
+- A unified Home dashboard connects the modules.
+- Dark-first visual design.
+- Modular, widget-based dashboard.
+- Habit streaks and calendars are important.
+- Activity heatmap is a core LIVE feature.
+- Weekly habit matrix is a core LIVE feature.
+- Fitness tracking and routines belong within LIVE.
+- Goals, milestones, tasks and projects are interconnected.
+- Google AI Studio is the primary development environment.
+- Incremental development with Git checkpoints.
+- Learning and understanding generated code is part of the project.
+
+Decisions we haven't finalized
+These are intentionally left open until we evaluate them:
+- Product name: Daywell is a working name.
+- Final UI palette: Reference-inspired, but not finalized.
+- ORM: Prisma versus Drizzle.
+- Authentication: Final Firebase configuration.
+- Database deployment: Provider and configuration.
+- Notifications: Exact delivery mechanism.
+- Calendar integrations: Deferred.
+- Detailed habit frequency rules: To be specified.
+- Measurable habit rules: To be specified.
+- Streak edge cases: To be specified.
+- Final AI architecture: To be designed when THINK begins.
+
+17 — The project we are actually going to build
+Daywell
+Plan intentionally. Live consistently. Think clearly.
+
+PLAN
+
+Tasks, projects, calendar, goals, milestones, deadlines and scheduling.
+
+LIVE
+
+Habits, streaks, monthly calendars, activity heatmaps, weekly matrices, fitness and routines.
+
+THINK
+
+Contextual AI, analysis, planning, insights and controlled actions across PLAN and LIVE.
+
+HOME
+
+The central daily dashboard connecting everything together.
+
+This is our product blueprint baseline. We should use it as the reference document when making future implementation decisions.
+What we do next
+The next step is Phase 0 — Product & Development Foundation.
+
+Before we start building the interface in Google AI Studio, I'd turn this blueprint into a proper set of project documents and establish the initial development workflow inside AI Studio: repository, environment, project structure, initial prompt and checkpoints.
+
+That's where we start building Daywell for real.

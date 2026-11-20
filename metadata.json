@@ -1,0 +1,8 @@
+{
+  "name": "Marly",
+  "description": "Plan with purpose. Live with intention. Think with clarity. A unified personal productivity and life-tracking platform.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
