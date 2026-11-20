@@ -1,6 +1,5 @@
 import React from 'react';
 import { Calendar as CalendarIcon, CheckCircle2, Circle, Plus } from 'lucide-react';
-import { useToast } from '../../context/ToastContext';
 import { useScheduleData } from '../../hooks/useMarlyData';
 import { Card, IconButton } from '../../components/ui';
 import { cn } from '../../lib/cn';
@@ -13,7 +12,6 @@ const PERIODS: Array<'Morning' | 'Noon' | 'Evening'> = ['Morning', 'Noon', 'Even
 
 export function ScheduleTimelineColumn({ onNavigate }: ScheduleTimelineColumnProps) {
   const { weekDays, blocks, selectedDayKey, setSelectedDayKey } = useScheduleData();
-  const { pushToast } = useToast();
 
   // Fall back cleanly to Today (Tue Mar 24) blocks for days without bespoke sample events
   const dayBlocks = blocks.filter((b) => b.dayKey === selectedDayKey);
@@ -38,15 +36,8 @@ export function ScheduleTimelineColumn({ onNavigate }: ScheduleTimelineColumnPro
         </div>
         <IconButton
           variant="light"
-          label="Open Calendar preview"
-          onClick={() => {
-            onNavigate('/plan/calendar');
-            pushToast({
-              title: 'Calendar preview',
-              description: 'Event & time-block creation arrives in Phase 4.',
-              variant: 'info',
-            });
-          }}
+          label="Open Calendar"
+          onClick={() => onNavigate('/plan/calendar')}
         >
           <Plus className="h-4 w-4" />
         </IconButton>

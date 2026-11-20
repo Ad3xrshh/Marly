@@ -1,47 +1,7 @@
 import React from 'react';
-import { Dumbbell, Flame, ListChecks } from 'lucide-react';
-import { useFitnessAndRoutinesData, useHabitsMomentumData } from '../../hooks/useMarlyData';
-import { Card, Checkbox } from '../../components/ui';
-
-export function HabitsListPreview() {
-  const { habits, toggleHabit } = useHabitsMomentumData();
-
-  return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-      {habits.map((habit) => (
-        <Card key={habit.id} tone="surface" padding="md">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex items-start gap-3 min-w-0">
-              <div className="pt-0.5">
-                <Checkbox
-                  checked={habit.completedToday}
-                  onChange={() => toggleHabit(habit.id)}
-                  tone="mint"
-                  ariaLabel={`Toggle ${habit.name}`}
-                />
-              </div>
-              <div className="min-w-0">
-                <h3 className="text-sm font-semibold text-[#F2F2F2]">{habit.name}</h3>
-                <p className="mt-1 text-xs text-[#A3A3A8]">
-                  {habit.category}
-                  <span aria-hidden="true"> · </span>
-                  {habit.scheduleLabel}
-                  <span aria-hidden="true"> · </span>
-                  <span className="font-mono">{habit.targetLabel}</span>
-                </p>
-              </div>
-            </div>
-
-            <div className="inline-flex items-center gap-1 font-mono text-xs font-semibold text-[#F19A50] tabular-nums shrink-0">
-              <Flame className="h-3.5 w-3.5" />
-              <span>{habit.streakDays}d</span>
-            </div>
-          </div>
-        </Card>
-      ))}
-    </div>
-  );
-}
+import { Dumbbell, ListChecks } from 'lucide-react';
+import { useFitnessAndRoutinesData } from '../../hooks/useMarlyData';
+import { Card } from '../../components/ui';
 
 export function FitnessRoutinesPreview() {
   const { workouts, routines } = useFitnessAndRoutinesData();

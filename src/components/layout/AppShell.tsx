@@ -1,4 +1,9 @@
 import React, { useState } from 'react';
+import { HabitFormDialog } from '../../features/live/HabitFormDialog';
+import { CalendarEventFormDialog } from '../../features/plan/CalendarEventFormDialog';
+import { GoalFormDialog } from '../../features/plan/GoalFormDialog';
+import { ProjectFormDialog } from '../../features/plan/ProjectFormDialog';
+import { TaskFormDialog } from '../../features/plan/TaskFormDialog';
 import { RouteState } from '../../types/marly';
 import { MobileBottomNav } from './MobileBottomNav';
 import { QuickAddDialog } from './QuickAddDialog';
@@ -49,6 +54,12 @@ export function AppShell({ route, onNavigate, children }: AppShellProps) {
         onClose={() => setQuickAddOpen(false)}
         onNavigate={onNavigate}
       />
+
+      <TaskFormDialog />
+      <CalendarEventFormDialog />
+      <ProjectFormDialog />
+      <GoalFormDialog />
+      <HabitFormDialog />
     </div>
   );
 }

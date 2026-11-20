@@ -18,8 +18,8 @@ export function HomePage({ onNavigate }: HomePageProps) {
       <PreviewNotice
         accent="coral"
         title="Welcome to Marly · Daily Overview"
-        phaseLabel="Phase 1 UI Shell (Isolated Demo Data)"
-        description="Check off tasks or habits to preview live local progress. Nothing is persisted to a database yet; full backend storage begins in Phase 3."
+        phaseLabel="PLAN & Habits Live · Schedule Preview"
+        description="Tasks, Calendar, Projects, Goals, and Habits save to your account when signed in. The schedule timeline remains a local preview."
         action={
           isModified ? (
             <Button

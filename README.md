@@ -17,31 +17,33 @@ Marly is a unified personal productivity and life-tracking application designed 
 | :--- | :--- | :--- |
 | **Phase 0** | Environment inspection, living documentation suite, Git checkpoint strategy | **Complete** |
 | **Phase 1** | Brand identity, design tokens, reusable UI kit, responsive shell, URL-aware routing, isolated-demo Home dashboard, and visual previews for Plan, Live, Think, Statistics, and Settings | **Complete** |
-| **Phase 2** | Home dashboard refinement & interactive Quick Add shell workflows | Upcoming |
-| **Phase 3–5** | PLAN backend + PostgreSQL/Drizzle persistence (Tasks, Calendar, Projects & Goals) | Upcoming |
-| **Phase 6–8** | LIVE backend + habit logs, streak engine, calendar/matrix/heatmap calculations, fitness & routines | Upcoming |
+| **Phase 3 (Task CRUD)** | Node.js + Express (`server.ts`), Cloud SQL PostgreSQL + Drizzle ORM, Zod validation, Firebase Auth, and real Task CRUD in HOME & PLAN → Tasks | **Complete** |
+| **Phase 4 (PLAN Calendar)** | PostgreSQL `calendar_events`, `/api/calendar-events` CRUD, Month/Week/Day views, and task due-date calendar integration | **Complete** |
+| **Phase 5 (Projects & Goals)** | PostgreSQL `projects`, `project_milestones`, `goals`, `goal_milestones`, task associations, and deterministic progress calculations | **Complete** |
+| **Phase 6 (Habits & Logs)** | PostgreSQL `habits`, `habit_schedules`, `habit_logs`, authoritative `users.timezone`, deterministic daily/weekly streaks, and HOME / LIVE → Habits integration | **Complete** |
+| **Phase 7–8** | LIVE Monthly Calendar, Weekly Matrix, Activity Heatmap aggregations, Fitness & Routines | Upcoming |
 | **Phase 9–10** | Unified Statistics, full integration testing & polish | Upcoming |
 | **Phase 11–12** | THINK (Gemini tool-calling intelligence layer) & production deployment | Upcoming |
 
-> **Important Note on Phase 1 Demonstration Mode:**
-> All tasks, habits, calendar blocks, streaks, and heatmaps currently rendered in the interface use **isolated client-side demonstration data**. There is no backend persistence, authentication, or AI execution enabled yet. Toggling items updates local React state only and can be reset at any time.
+> **Current Persistence Boundary:**
+> **Tasks** (HOME and PLAN → Tasks), **Calendar Events** (PLAN → Calendar), **Projects, Goals & Milestones** (PLAN → Projects, PLAN → Goals, and HOME Goal Progress), **Habits, Schedules & Completion Logs** (HOME Daily Habits and LIVE → Habits), and **User Timezone Preferences** (Settings) are backed by PostgreSQL + Drizzle ORM and scoped to your authenticated Google account. LIVE Calendar/Matrix/Heatmap/Fitness previews, Home schedule timeline preview, Statistics, and THINK previews continue using **isolated client-side demonstration data**.
 
 ---
 
 ## Technology Stack
 
-### Active in Phase 0 / Phase 1
+### Active in Phases 3–6
 - **Frontend**: React 19, TypeScript, Vite 8
 - **Styling**: Tailwind CSS v4 (`@tailwindcss/vite`) with custom semantic design tokens
 - **Typography**: `Manrope` (UI & display) + `JetBrains Mono` (tabular metrics & time readouts)
 - **Icons & Motion**: `lucide-react`, `motion` (restrained compositor transitions)
 - **Routing**: Zero-dependency History API URL-aware router (`src/lib/router.ts`)
-
-### Planned Target Stack (Later Phases)
 - **Backend API**: Node.js + Express (`server.ts` integrated with Vite middleware)
-- **Database & ORM**: PostgreSQL + Drizzle ORM
-- **Validation**: Zod
-- **Authentication**: Firebase Authentication
+- **Database & ORM**: PostgreSQL (Cloud SQL) + Drizzle ORM (`drizzle-orm` + `pg`)
+- **Validation**: Zod v4
+- **Authentication**: Firebase Authentication (Google Sign-In + `firebase-admin` verification)
+
+### Planned for Upcoming Phases
 - **Charts**: Recharts (for unified Statistics)
 - **AI Layer (Phase 11)**: `@google/genai` (Gemini API via backend-controlled tool execution)
 - **Testing**: Vitest + API/integration tests

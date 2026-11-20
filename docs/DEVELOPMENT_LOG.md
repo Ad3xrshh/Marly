@@ -44,3 +44,45 @@ Before every major phase or structural change:
 - All data resets on page reload; there is no database persistence yet.
 - Quick Add opens the creation menu and explains the target workflow with honest demo feedback rather than writing to a backend.
 - THINK displays its Phase 11 architecture and confirmation workflow without making any Gemini API calls.
+
+---
+
+## Phase 3 — First Real Backend Implementation (Task CRUD + Auth)
+**Focus:** PostgreSQL (Cloud SQL) + Drizzle ORM + Express API + Zod validation + Firebase Authentication + real HOME & PLAN Task CRUD integration.
+
+### Deliverables Completed
+1. **Database & Drizzle Schema (`src/db/`):** Provisioned Cloud SQL PostgreSQL and pushed `users` and `tasks` schema (`src/db/schema.ts`, `src/db/drizzle.config.ts`, `src/db/index.ts`) with object-method pooling (`SQL_HOST`, `SQL_USER`, `SQL_PASSWORD`, `SQL_DB_NAME`) and user-scoped repository helpers (`src/db/users.ts`, `src/db/tasks.ts`), verified against `information_schema.columns`.
+2. **Firebase Auth & Express Middleware (`src/lib/firebase-admin.ts`, `src/middleware/auth.ts`):** Verified Bearer Firebase ID tokens via `firebase-admin` and synced `users` rows via `onConflictDoUpdate` on every authenticated request.
+3. **Validated Task REST API (`src/validators/taskValidator.ts`, `src/routes/tasks.ts`, `server.ts`):** Implemented `GET /api/tasks`, `GET /api/tasks/:id`, `POST /api/tasks`, `PATCH /api/tasks/:id`, and `DELETE /api/tasks/:id` with Zod v4 request/param validation, automatic `completedAt` lifecycle handling, sanitized error layers, and Express + Vite middleware serving on port `3000`.
+4. **Frontend Auth & Task CRUD UI:** Added `src/lib/firebase.ts`, `AuthContext`, `TasksContext`, `taskApi.ts`, normalized `Task` DTO (`src/types/task.ts`), `TaskFormDialog`, and integrated real task management into `TasksOverviewColumn` (HOME), `PlanPage` (`PLAN → Tasks`), `QuickAddDialog`, `TopBar`, `Sidebar`, and `SettingsPage`, while keeping unimplemented modules cleanly isolated on `DemoStateContext`.
+
+---
+
+## Phase 4 — PLAN → Calendar (Events CRUD + Task Due-Date Integration)
+**Focus:** Real PostgreSQL `calendar_events` persistence, authenticated `/api/calendar-events` CRUD API, Month/Week/Day calendar views, and non-destructive task due-date overlay.
+
+### Deliverables Completed
+1. **Calendar Events Schema & Repository (`src/db/schema.ts`, `src/db/calendarEvents.ts`):** Added `calendar_events` table separating date-only all-day bounds (`start_date`, `end_date`) from timezone-aware timed events (`start_at`, `end_at`), with nullable `task_id` FK and strict `user_id` ownership scoping; verified against `information_schema.columns`.
+2. **Validation & Express API (`src/validators/calendarEventValidator.ts`, `src/routes/calendarEvents.ts`, `server.ts`):** Implemented `GET /api/calendar-events`, `GET /api/calendar-events/:id`, `POST /api/calendar-events`, `PATCH /api/calendar-events/:id`, and `DELETE /api/calendar-events/:id` behind `requireAuth`, enforcing `endAt > startAt` (timed) and `endDate >= startDate` (all-day) on both create and partial `PATCH` updates.
+3. **Frontend Calendar & Task Coexistence (`src/types/calendar.ts`, `src/services/calendarApi.ts`, `src/context/CalendarContext.tsx`, `src/features/plan/CalendarEventFormDialog.tsx`, `src/features/plan/PlanCalendarView.tsx`):** Built real Month, Week, and Day views with Prev/Today/Next navigation, local-timezone date/grid utilities, category & task-visibility filters (`All`, `Open only`, `Hidden`), full Event CRUD with delete confirmation, and click-to-edit / checkbox integration with existing Tasks without duplicating tasks into `calendar_events`.
+
+---
+
+## Phase 5 — PLAN → Projects & Goals (Milestones, Task Associations & Progress)
+**Focus:** Real PostgreSQL `goals`, `goal_milestones`, `projects`, and `project_milestones` persistence, authenticated CRUD & milestone-reordering APIs, task–project–goal associations, deterministic progress calculations, and HOME/PLAN UI integration.
+
+### Deliverables Completed
+1. **Database Schema & Repositories (`src/db/schema.ts`, `src/db/goals.ts`, `src/db/projects.ts`, `src/db/tasks.ts`):** Added `goals`, `goal_milestones`, `projects`, and `project_milestones` tables in Cloud SQL PostgreSQL plus `ON DELETE SET NULL` foreign keys and indexes on `tasks.project_id` and `tasks.goal_id`. Verified via `information_schema.columns`. Enforced strict `userId` ownership on every project, goal, milestone, and task association.
+2. **Validation, Progress Engine & REST API (`src/lib/progress.ts`, `src/validators/projectGoalValidator.ts`, `src/validators/taskValidator.ts`, `src/routes/goals.ts`, `src/routes/projects.ts`, `src/routes/tasks.ts`, `server.ts`):** Implemented `/api/goals` and `/api/projects` (plus nested `/milestones` CRUD and `PUT .../milestones/reorder`), date-bound validation (`targetDate >= startDate`), cross-user ownership rejection on task linking, and deterministic double-counting-free progress rules shared across backend and frontend.
+3. **Frontend UI & HOME Integration (`src/types/projectGoal.ts`, `src/services/projectsGoalsApi.ts`, `src/context/ProjectsGoalsContext.tsx`, `src/features/plan/PlanProjectsView.tsx`, `src/features/plan/PlanGoalsView.tsx`, `src/features/plan/ProjectFormDialog.tsx`, `src/features/plan/GoalFormDialog.tsx`, `src/features/plan/TaskFormDialog.tsx`, `src/features/plan/PlanPage.tsx`, `src/features/home/TasksOverviewColumn.tsx`, `src/components/layout/QuickAddDialog.tsx`):** Built master-detail Projects and Goals workspaces with filtering, sorting, archive/restore, ordered milestone controls, measurable goal targets, task association selectors, and live HOME Goal Progress tracking.
+
+---
+
+## Phase 6 — LIVE Backend Foundation (Habits, Schedules & Historical Logs)
+**Focus:** Real PostgreSQL `habits`, `habit_schedules`, `habit_logs`, and `users.timezone` persistence, authoritative user-timezone local-date evaluation, deterministic daily & weekly streaks, and HOME / LIVE → Habits / Settings integration.
+
+### Deliverables Completed
+1. **Database Schema & Repositories (`src/db/schema.ts`, `src/db/users.ts`, `src/db/habits.ts`):** Added nullable `users.timezone`, `habits` (boolean & measurable targets, optional `goalId`, active/archived status), `habit_schedules` (`daily`, `weekdays` bitmask, `times_per_week`), and `habit_logs` with unique `(habit_id, local_date)` index and preserved `target_snapshot` / server-derived `status_snapshot`. Pushed to Cloud SQL and verified via `information_schema.columns`.
+2. **Schedule, Timezone & Streak Engine (`src/lib/habitSchedule.ts`, `src/validators/habitValidator.ts`):** Enforced schedule-type validation rules, non-negative measurable values, `completed` vs `partial` status derivation (partial logs preserved but never advancing streaks), schedule-edit historical log immutability, and deterministic daily (`days`) vs weekly (`weeks`) streak calculation without penalizing in-progress days or weeks.
+3. **Express API (`src/routes/me.ts`, `src/routes/habits.ts`, `server.ts`):** Implemented `GET/PATCH /api/me` for authoritative user timezone persistence and initialization, plus ownership-scoped `/api/habits`, `/api/habits/:id/schedule`, `/api/habits/:id/logs`, `/api/habits/:id/logs/:localDate`, and `/api/habit-logs`.
+4. **Frontend Integration (`src/types/habit.ts`, `src/services/habitsApi.ts`, `src/context/HabitsContext.tsx`, `src/hooks/useMarlyData.ts`, `src/features/live/HabitFormDialog.tsx`, `src/features/live/LiveHabitsView.tsx`, `src/features/home/HabitMomentumColumn.tsx`, `src/features/settings/SettingsPage.tsx`, `src/components/layout/QuickAddDialog.tsx`):** Connected LIVE → Habits CRUD & historical backfill/undo, HOME daily habits & 7-day consistency bars, Quick Add New Habit, and Settings persisted IANA timezone configuration.

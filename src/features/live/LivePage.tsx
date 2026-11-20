@@ -2,7 +2,8 @@ import React from 'react';
 import { LiveSubTab } from '../../types/marly';
 import { PreviewNotice, SegmentedTabs } from '../../components/ui';
 import { ActivityHeatmap } from './ActivityHeatmap';
-import { FitnessRoutinesPreview, HabitsListPreview } from './HabitsAndFitnessPreview';
+import { FitnessRoutinesPreview } from './HabitsAndFitnessPreview';
+import { LiveHabitsView } from './LiveHabitsView';
 import { MonthlyHabitCalendar } from './MonthlyHabitCalendar';
 import { WeeklyHabitMatrix } from './WeeklyHabitMatrix';
 
@@ -12,10 +13,10 @@ interface LivePageProps {
 }
 
 const LIVE_TABS: Array<{ value: LiveSubTab; label: string; href: string }> = [
+  { value: 'habits', label: 'Habits', href: '/live/habits' },
   { value: 'calendar', label: 'Habit Calendar', href: '/live/calendar' },
   { value: 'matrix', label: 'Weekly Matrix', href: '/live/matrix' },
   { value: 'heatmap', label: 'Activity Heatmap', href: '/live/heatmap' },
-  { value: 'habits', label: 'Habits', href: '/live/habits' },
   { value: 'fitness', label: 'Fitness & Routines', href: '/live/fitness' },
 ];
 
@@ -28,7 +29,7 @@ export function LivePage({ activeTab, onNavigate }: LivePageProps) {
             LIVE · Consistency & Activity
           </h2>
           <p className="mt-1 text-sm text-[#A3A3A8]">
-            Monthly habit states, weekly matrix tracking, and yearly consistency heatmaps.
+            Scheduled habits, timezone-safe completion logs, and visual consistency previews.
           </p>
         </div>
 
@@ -39,17 +40,19 @@ export function LivePage({ activeTab, onNavigate }: LivePageProps) {
         />
       </div>
 
-      <PreviewNotice
-        accent="mint"
-        title="Visual Preview Only"
-        phaseLabel="Phases 6–8"
-        description="These interfaces demonstrate Marly's core LIVE tracking system using isolated sample data. Real habit definitions, local-timezone habit_logs, and server-side streak engines will be built in Phases 6–8."
-      />
+      {activeTab !== 'habits' && (
+        <PreviewNotice
+          accent="mint"
+          title="Visual Preview Only"
+          phaseLabel="Phases 7–8"
+          description="Habit management and daily logs in the Habits tab are backed by PostgreSQL. Calendar, matrix, heatmap, and fitness analytics views will connect in Phases 7–8."
+        />
+      )}
 
+      {activeTab === 'habits' && <LiveHabitsView />}
       {activeTab === 'calendar' && <MonthlyHabitCalendar />}
       {activeTab === 'matrix' && <WeeklyHabitMatrix />}
       {activeTab === 'heatmap' && <ActivityHeatmap />}
-      {activeTab === 'habits' && <HabitsListPreview />}
       {activeTab === 'fitness' && <FitnessRoutinesPreview />}
     </div>
   );

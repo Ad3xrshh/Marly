@@ -5,10 +5,13 @@ import {
   BrainCircuit,
   CalendarCheck2,
   Home,
+  LogIn,
+  LogOut,
   RotateCcw,
   Settings,
   X,
 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 import { useDemoState } from '../../context/DemoStateContext';
 import { cn } from '../../lib/cn';
 import { handleSpaLinkClick } from '../../lib/router';
@@ -48,7 +51,6 @@ const PRIMARY_NAV_ITEMS: NavItem[] = [
     subtitle: 'Tasks · Calendar · Goals',
     icon: <CalendarCheck2 className="h-4 w-4" />,
     accentClass: 'text-[#E59585]',
-    phaseNote: 'Preview',
   },
   {
     id: 'live',
@@ -85,6 +87,7 @@ export function Sidebar({
   mobileOpen,
   onCloseMobile,
 }: SidebarProps) {
+  const { user, isAuthLoading, isSigningIn, signInWithGoogle, signOutUser } = useAuth();
   const { isModified, resetDemoState } = useDemoState();
 
   const navContent = (
@@ -184,8 +187,37 @@ export function Sidebar({
           <span className="whitespace-nowrap">Settings & UI Kit</span>
         </a>
 
+        {!isAuthLoading && (
+          user ? (
+            <button
+              type="button"
+              onClick={() => {
+                onCloseMobile();
+                void signOutUser();
+              }}
+              className="flex w-full items-center justify-between gap-2 rounded-xl px-3 py-2 text-xs font-medium text-[#A3A3A8] transition-colors hover:bg-white/[0.04] hover:text-[#F2F2F2] cursor-pointer"
+            >
+              <span className="truncate">{user.displayName || user.email}</span>
+              <LogOut className="h-3.5 w-3.5 shrink-0 text-[#737378]" />
+            </button>
+          ) : (
+            <button
+              type="button"
+              disabled={isSigningIn}
+              onClick={() => {
+                onCloseMobile();
+                void signInWithGoogle();
+              }}
+              className="flex w-full items-center justify-between gap-2 rounded-xl border border-[#E59585]/25 bg-[#E59585]/[0.08] px-3 py-2 text-xs font-medium text-[#E59585] transition-colors hover:bg-[#E59585]/15 cursor-pointer disabled:opacity-50"
+            >
+              <span>{isSigningIn ? 'Signing in...' : 'Sign in with Google'}</span>
+              <LogIn className="h-3.5 w-3.5 shrink-0" />
+            </button>
+          )
+        )}
+
         <div className="px-3 pt-1 text-[11px] leading-relaxed text-[#737378]">
-          Phase 1 Shell · Isolated demo data
+          Tasks live · Previews isolated
         </div>
       </div>
     </div>

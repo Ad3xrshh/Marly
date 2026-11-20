@@ -15,10 +15,10 @@
 - **Rationale:** `Manrope` gives Marly a warm, modern geometric tone that reads crisply on `#151515`/`#202020` dark surfaces, while `JetBrains Mono` guarantees vertical alignment in matrices, calendars, and progress ratios.
 
 ## ADR-003: Target Persistence Stack — PostgreSQL + Drizzle ORM
-- **Date:** Phase 0
-- **Status:** Confirmed (Implementation deferred to Phase 3)
-- **Decision:** Target PostgreSQL with Drizzle ORM for backend persistence when Phase 3 begins, keeping Phase 1 strictly client-side with isolated demonstration data.
-- **Rationale:** Marly's interconnected entities (tasks, goals, milestones, historical habit logs, workouts) benefit from strict relational constraints and explicit SQL aggregations. Deferring installation prevents unused dependency bloat during UI shell construction.
+- **Date:** Phase 0 / Implemented Phases 3–6
+- **Status:** Implemented (`users`, `tasks`, `calendar_events`, `goals`, `goal_milestones`, `projects`, `project_milestones`, `habits`, `habit_schedules`, and `habit_logs` active on Cloud SQL PostgreSQL)
+- **Decision:** Use PostgreSQL (Cloud SQL) with Drizzle ORM (`drizzle-orm` + `pg` object-method pooling) for backend persistence across PLAN (Phases 3–5) and LIVE Habits & Logs (Phase 6).
+- **Rationale:** Marly's interconnected entities (tasks, calendar events, projects, goals, milestones, historical habit logs keyed by `(habit_id, local_date)`, workouts) benefit from strict relational constraints, `ON DELETE SET NULL` task preservation, and explicit SQL aggregations.
 
 ## ADR-004: Zero-Dependency URL-Aware Routing in Phase 1
 - **Date:** Phase 1
@@ -27,13 +27,13 @@
 - **Rationale:** Gives users real browser Back/Forward navigation and shareable route paths without adding external routing overhead in Phase 1.
 
 ## ADR-005: Honest Demonstration Isolation
-- **Date:** Phase 1
+- **Date:** Phase 1 / Updated Phases 3–6
 - **Status:** Confirmed
-- **Decision:** Store Phase 1 demo records in `src/data/` and wrap interactive shell toggles in `DemoStateContext` with visible `Demo Preview` indicators and a one-click reset action. Never fake API calls or database persistence.
-- **Rationale:** Maintains developer and user trust while allowing tactile verification of the 3-column Home layout, Monthly Habit Calendar, Weekly Matrix, and Activity Heatmap.
+- **Decision:** Store unimplemented preview datasets in `src/data/` and wrap local preview toggles in `DemoStateContext` with visible `Demo Preview` indicators and a one-click reset action. Real Task CRUD (Phase 3), Calendar Event CRUD (Phase 4), Projects/Goals/Milestones CRUD (Phase 5), and Habits, Schedules, Historical Logs & Authoritative Timezone Settings (Phase 6) require Google Sign-In and never fall back to fake persistence when signed out.
+- **Rationale:** Maintains developer and user trust while allowing tactile verification of upcoming modules alongside real persisted PLAN and LIVE entities.
 
 ## ADR-006: Deferred Decisions (Intentionally Open)
-- **Authentication Provider Configuration:** Firebase Auth integration deferred until Phase 3+ backend routes are built.
+- **Authentication Provider Configuration (Resolved in Phase 3):** Google Sign-In via Firebase Authentication (`signInWithPopup` + `firebase-admin` Bearer verification) is active for personal Task ownership.
 - **Charting Library Adoption:** `recharts` deferred to Phase 9 (Unified Statistics); Phase 1 uses lightweight custom SVG/CSS bars for the Home 7-day preview and Live heatmap trends.
 - **Notification Delivery Mechanism:** Push/email/local notification strategy deferred until task and habit schedules exist in backend services.
 - **THINK AI Tool Schema:** Gemini function-calling contract (`@google/genai`) deferred to Phase 11 after PLAN and LIVE services stabilize.

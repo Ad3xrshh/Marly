@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
-import { Globe, Palette, Shield } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Globe, LogIn, LogOut, Palette, Shield } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { useHabitsManagementData } from '../../hooks/useMarlyData';
+import { isValidIanaTimeZone } from '../../lib/habitSchedule';
 import {
   Button,
   Card,
@@ -15,10 +18,43 @@ import {
 
 type ShowcaseState = 'populated' | 'loading' | 'empty' | 'error';
 
+const COMMON_TIMEZONES = [
+  'America/Los_Angeles',
+  'America/New_York',
+  'Europe/London',
+  'Asia/Kolkata',
+  'Asia/Tokyo',
+  'UTC',
+];
+
 export function SettingsPage() {
+  const { user, isSigningIn, signInWithGoogle, signOutUser } = useAuth();
   const { pushToast } = useToast();
+  const {
+    profile,
+    effectiveTimezone,
+    todayLocalDate,
+    isMutating,
+    updateTimeZone,
+  } = useHabitsManagementData();
   const [showcaseState, setShowcaseState] = useState<ShowcaseState>('populated');
-  const [sampleInput, setSampleInput] = useState('America/Los_Angeles');
+  const [timezoneInput, setTimezoneInput] = useState(effectiveTimezone);
+  const [timezoneError, setTimezoneError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setTimezoneInput(effectiveTimezone);
+  }, [effectiveTimezone]);
+
+  const handleSaveTimezone = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = timezoneInput.trim();
+    if (!isValidIanaTimeZone(trimmed)) {
+      setTimezoneError('Enter a valid IANA timezone (e.g. America/Los_Angeles or Asia/Kolkata).');
+      return;
+    }
+    setTimezoneError(null);
+    await updateTimeZone(trimmed);
+  };
 
   return (
     <div className="space-y-6">
@@ -27,18 +63,18 @@ export function SettingsPage() {
           Settings & Design System
         </h2>
         <p className="mt-1 text-sm text-[#A3A3A8]">
-          Workspace configuration previews and reusable Phase 1 UI state primitives.
+          Account session, persisted timezone settings, and reusable UI state primitives.
         </p>
       </div>
 
       <PreviewNotice
         accent="blue"
-        title="Settings Persistence Deferred"
-        phaseLabel="Phase 3+ Backend"
-        description="Account profile, Firebase Authentication, and timezone persistence will be wired in Phase 3+. Below you can inspect Marly's reusable UI kit states."
+        title="Account & Timezone Persistence Active"
+        phaseLabel="Phases 3–6 Live"
+        description="Google Sign-In, Tasks, Calendar, Projects, Goals, Habits, and your authoritative IANA timezone preference save directly to your PostgreSQL account."
       />
 
-      {/* Settings Preview Cards */}
+      {/* Settings Cards */}
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
         <Card tone="surface" padding="lg">
           <div className="flex items-center gap-2.5 text-sm font-semibold text-[#F2F2F2]">
@@ -46,16 +82,54 @@ export function SettingsPage() {
             <span>Timezone & Local Dates</span>
           </div>
           <p className="mt-2 text-xs leading-relaxed text-[#A3A3A8]">
-            Habit logs use explicit local calendar dates (<code className="font-mono">YYYY-MM-DD</code>) rather than UTC timestamps.
+            Habit logs and streaks evaluate against your persisted IANA timezone (<code className="font-mono">YYYY-MM-DD</code>) rather than UTC midnight.
           </p>
-          <div className="mt-4">
+          <form onSubmit={handleSaveTimezone} className="mt-4 space-y-3">
             <Input
-              label="Preview Timezone (local only)"
-              value={sampleInput}
-              onChange={(e) => setSampleInput(e.target.value)}
-              onClear={() => setSampleInput('')}
+              label="Authoritative IANA Timezone"
+              value={timezoneInput}
+              onChange={(e) => {
+                setTimezoneInput(e.target.value);
+                if (timezoneError) setTimezoneError(null);
+              }}
+              onClear={() => setTimezoneInput('')}
+              error={timezoneError ?? undefined}
+              disabled={!user || isMutating}
             />
-          </div>
+            {user && (
+              <>
+                <div className="flex flex-wrap gap-1.5">
+                  {COMMON_TIMEZONES.map((tz) => (
+                    <button
+                      key={tz}
+                      type="button"
+                      onClick={() => {
+                        setTimezoneInput(tz);
+                        setTimezoneError(null);
+                      }}
+                      className="rounded-md border border-white/[0.08] bg-[#262626] px-2 py-1 font-mono text-[10px] text-[#A3A3A8] hover:text-[#F2F2F2] cursor-pointer"
+                    >
+                      {tz}
+                    </button>
+                  ))}
+                </div>
+                <div className="flex items-center justify-between gap-2 pt-1">
+                  <span className="font-mono text-[11px] text-[#737378]">
+                    Local today: {todayLocalDate}
+                    {profile?.timezoneInitialized ? '' : ' (auto-detecting)'}
+                  </span>
+                  <Button
+                    type="submit"
+                    variant="secondary"
+                    size="sm"
+                    disabled={isMutating || timezoneInput.trim() === effectiveTimezone}
+                  >
+                    {isMutating ? 'Saving...' : 'Save Timezone'}
+                  </Button>
+                </div>
+              </>
+            )}
+          </form>
         </Card>
 
         <Card tone="surface" padding="lg">
@@ -91,24 +165,46 @@ export function SettingsPage() {
         <Card tone="surface" padding="lg">
           <div className="flex items-center gap-2.5 text-sm font-semibold text-[#F2F2F2]">
             <Shield className="h-4 w-4 text-[#96D2C5]" />
-            <span>Authentication Boundary</span>
+            <span>Account & Authentication</span>
           </div>
           <p className="mt-2 text-xs leading-relaxed text-[#A3A3A8]">
-            No auth is active in Phase 1. Future phases will enforce per-user ownership server-side via Firebase Auth + PostgreSQL.
+            {user
+              ? `Signed in as ${user.displayName || user.email}. Your tasks are privately scoped to your account.`
+              : 'Sign in with Google to persist your tasks across sessions and devices.'}
           </p>
-          <div className="mt-4">
+          <div className="mt-4 flex flex-wrap gap-2">
+            {user ? (
+              <Button
+                variant="secondary"
+                size="sm"
+                leadingIcon={<LogOut className="h-3.5 w-3.5" />}
+                onClick={() => void signOutUser()}
+              >
+                Sign out
+              </Button>
+            ) : (
+              <Button
+                variant="coral"
+                size="sm"
+                leadingIcon={<LogIn className="h-3.5 w-3.5" />}
+                disabled={isSigningIn}
+                onClick={() => void signInWithGoogle()}
+              >
+                {isSigningIn ? 'Signing in...' : 'Sign in with Google'}
+              </Button>
+            )}
             <Button
-              variant="secondary"
+              variant="ghost"
               size="sm"
               onClick={() =>
                 pushToast({
                   title: 'Toast system check',
-                  description: 'Phase 1 notification stack is active.',
-                  variant: 'demo',
+                  description: 'Notification stack is active.',
+                  variant: 'info',
                 })
               }
             >
-              Test Toast Notification
+              Test Toast
             </Button>
           </div>
         </Card>

@@ -8,7 +8,12 @@ import { Compass } from 'lucide-react';
 import { MotionConfig } from 'motion/react';
 import { AppShell } from './components/layout/AppShell';
 import { EmptyState } from './components/ui';
+import { AuthProvider } from './context/AuthContext';
+import { CalendarProvider } from './context/CalendarContext';
 import { DemoStateProvider } from './context/DemoStateContext';
+import { HabitsProvider } from './context/HabitsContext';
+import { ProjectsGoalsProvider } from './context/ProjectsGoalsContext';
+import { TasksProvider } from './context/TasksContext';
 import { ToastProvider } from './context/ToastContext';
 import { HomePage } from './features/home/HomePage';
 import { LivePage } from './features/live/LivePage';
@@ -27,7 +32,7 @@ function MarlyWorkspace() {
         <EmptyState
           icon={<Compass className="h-5 w-5 text-[#E59585]" />}
           title={`Route "${route.path}" not found`}
-          description="This path does not match a Marly workspace destination yet. Return to the Home overview to continue exploring the Phase 1 shell."
+          description="This path does not match a Marly workspace destination yet. Return to the Home overview to continue exploring your workspace."
           actionLabel="Return to Home"
           onAction={() => navigate('/')}
         />
@@ -49,9 +54,19 @@ export default function App() {
   return (
     <MotionConfig reducedMotion="user">
       <ToastProvider>
-        <DemoStateProvider>
-          <MarlyWorkspace />
-        </DemoStateProvider>
+        <AuthProvider>
+          <TasksProvider>
+            <ProjectsGoalsProvider>
+              <CalendarProvider>
+                <HabitsProvider>
+                  <DemoStateProvider>
+                    <MarlyWorkspace />
+                  </DemoStateProvider>
+                </HabitsProvider>
+              </CalendarProvider>
+            </ProjectsGoalsProvider>
+          </TasksProvider>
+        </AuthProvider>
       </ToastProvider>
     </MotionConfig>
   );

@@ -2,7 +2,7 @@ import React, { createContext, useCallback, useContext, useState } from 'react';
 import { CheckCircle2, Info, AlertCircle, X } from 'lucide-react';
 import { cn } from '../lib/cn';
 
-export type ToastVariant = 'info' | 'demo' | 'warning';
+export type ToastVariant = 'info' | 'demo' | 'warning' | 'success';
 
 export interface ToastItem {
   id: string;
@@ -47,12 +47,15 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             className={cn(
               'pointer-events-auto flex items-start gap-3 rounded-xl border bg-[#202020] px-4 py-3 shadow-xl transition-all duration-200',
               toast.variant === 'demo' && 'border-[#96D2C5]/30',
+              toast.variant === 'success' && 'border-[#96D2C5]/40',
               toast.variant === 'info' && 'border-white/10',
               toast.variant === 'warning' && 'border-[#F19A50]/40'
             )}
           >
             <div className="mt-0.5 shrink-0">
-              {toast.variant === 'demo' && <CheckCircle2 className="h-4 w-4 text-[#96D2C5]" />}
+              {(toast.variant === 'demo' || toast.variant === 'success') && (
+                <CheckCircle2 className="h-4 w-4 text-[#96D2C5]" />
+              )}
               {toast.variant === 'info' && <Info className="h-4 w-4 text-[#A9C8E9]" />}
               {toast.variant === 'warning' && <AlertCircle className="h-4 w-4 text-[#F19A50]" />}
             </div>

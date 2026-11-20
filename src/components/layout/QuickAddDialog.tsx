@@ -1,12 +1,17 @@
 import React from 'react';
 import {
   Activity,
+  ArrowRight,
   Calendar,
   CheckSquare,
   Dumbbell,
   Target,
-  ArrowRight,
 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { useCalendarContext } from '../../context/CalendarContext';
+import { useHabitsContext } from '../../context/HabitsContext';
+import { useProjectsGoalsContext } from '../../context/ProjectsGoalsContext';
+import { useTasksContext } from '../../context/TasksContext';
 import { useToast } from '../../context/ToastContext';
 import { Dialog } from '../ui';
 
@@ -20,8 +25,8 @@ const QUICK_ADD_OPTIONS = [
   {
     id: 'task',
     title: 'New Task',
-    description: 'Priority, due date, time block, and optional project link.',
-    phase: 'Phase 3 · PLAN',
+    description: 'Title, description, priority, category, status, and due date.',
+    phase: 'Live · PLAN',
     targetPath: '/plan/tasks',
     accent: 'text-[#E59585] bg-[#E59585]/12',
     icon: <CheckSquare className="h-4 w-4" />,
@@ -29,8 +34,8 @@ const QUICK_ADD_OPTIONS = [
   {
     id: 'habit',
     title: 'New Habit',
-    description: 'Binary or measurable target with custom weekday schedule.',
-    phase: 'Phase 6 · LIVE',
+    description: 'Binary or measurable target with daily, weekday, or weekly schedule.',
+    phase: 'Live · LIVE',
     targetPath: '/live/habits',
     accent: 'text-[#96D2C5] bg-[#96D2C5]/12',
     icon: <Activity className="h-4 w-4" />,
@@ -38,8 +43,8 @@ const QUICK_ADD_OPTIONS = [
   {
     id: 'event',
     title: 'Schedule Block / Event',
-    description: 'Dedicated calendar time slot distinct from task deadlines.',
-    phase: 'Phase 4 · PLAN',
+    description: 'Dedicated calendar event or time slot distinct from task deadlines.',
+    phase: 'Live · PLAN',
     targetPath: '/plan/calendar',
     accent: 'text-[#A9C8E9] bg-[#A9C8E9]/12',
     icon: <Calendar className="h-4 w-4" />,
@@ -48,7 +53,7 @@ const QUICK_ADD_OPTIONS = [
     id: 'goal',
     title: 'New Goal',
     description: 'Long-term intention broken down into ordered milestones.',
-    phase: 'Phase 5 · PLAN',
+    phase: 'Live · PLAN',
     targetPath: '/plan/goals',
     accent: 'text-[#E59585] bg-[#E59585]/12',
     icon: <Target className="h-4 w-4" />,
@@ -65,10 +70,72 @@ const QUICK_ADD_OPTIONS = [
 ];
 
 export function QuickAddDialog({ open, onClose, onNavigate }: QuickAddDialogProps) {
+  const { user, signInWithGoogle } = useAuth();
+  const { openCreateTask } = useTasksContext();
+  const { openCreateEvent } = useCalendarContext();
+  const { openCreateHabit } = useHabitsContext();
+  const { openCreateGoal } = useProjectsGoalsContext();
   const { pushToast } = useToast();
 
-  const handleSelect = (option: (typeof QUICK_ADD_OPTIONS)[number]) => {
+  const handleSelect = async (option: (typeof QUICK_ADD_OPTIONS)[number]) => {
     onClose();
+
+    if (option.id === 'task') {
+      if (user) {
+        openCreateTask();
+      } else {
+        const signedIn = await signInWithGoogle();
+        if (signedIn) {
+          openCreateTask();
+        } else {
+          onNavigate('/plan/tasks');
+        }
+      }
+      return;
+    }
+
+    if (option.id === 'habit') {
+      if (user) {
+        openCreateHabit();
+      } else {
+        const signedIn = await signInWithGoogle();
+        if (signedIn) {
+          openCreateHabit();
+        } else {
+          onNavigate('/live/habits');
+        }
+      }
+      return;
+    }
+
+    if (option.id === 'event') {
+      if (user) {
+        openCreateEvent();
+      } else {
+        const signedIn = await signInWithGoogle();
+        if (signedIn) {
+          openCreateEvent();
+        } else {
+          onNavigate('/plan/calendar');
+        }
+      }
+      return;
+    }
+
+    if (option.id === 'goal') {
+      if (user) {
+        openCreateGoal();
+      } else {
+        const signedIn = await signInWithGoogle();
+        if (signedIn) {
+          openCreateGoal();
+        } else {
+          onNavigate('/plan/goals');
+        }
+      }
+      return;
+    }
+
     onNavigate(option.targetPath);
     pushToast({
       title: `${option.title} preview`,
@@ -82,14 +149,14 @@ export function QuickAddDialog({ open, onClose, onNavigate }: QuickAddDialogProp
       open={open}
       onClose={onClose}
       title="Quick Add"
-      subtitle="Shell entry point for future creation flows. Select a destination to inspect its preview."
+      subtitle="Create a new task or jump to an upcoming workspace destination."
     >
       <div className="divide-y divide-white/[0.07] rounded-xl border border-white/[0.07] bg-[#1A1A1A]">
         {QUICK_ADD_OPTIONS.map((option) => (
           <button
             key={option.id}
             type="button"
-            onClick={() => handleSelect(option)}
+            onClick={() => void handleSelect(option)}
             className="flex w-full items-center justify-between gap-4 px-4 py-3.5 text-left transition-colors hover:bg-white/[0.04] first:rounded-t-xl last:rounded-b-xl cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E59585]"
           >
             <div className="flex items-start gap-3 min-w-0">
