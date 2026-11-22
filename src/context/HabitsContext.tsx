@@ -1,5 +1,19 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { addDaysToLocalDate, isValidIanaTimeZone } from '../lib/habitSchedule';
+import {
+  mergeDateIntervals,
+  splitDateRangeChunks,
+  subtractCoveredIntervals,
+  type DateRangeInterval,
+} from '../lib/habitVisualizations';
 import {
   createHabitRequest,
   deleteHabitLogRequest,
@@ -37,12 +51,16 @@ interface HabitsContextValue {
   profile: UserProfile | null;
   habits: Habit[];
   recentLogs: HabitLog[];
+  logsByKey: Map<string, HabitLog>;
   meta: HabitsMeta | null;
   isLoading: boolean;
   isMutating: boolean;
   error: string | null;
+  isRangeLoading: boolean;
+  rangeError: string | null;
   dialogState: HabitDialogState;
   refreshHabits: () => Promise<void>;
+  ensureLogRangeLoaded: (from: string, to: string, options?: { force?: boolean }) => Promise<void>;
   updateTimeZone: (timezone: string) => Promise<UserProfile | null>;
   createHabit: (input: CreateHabitInput) => Promise<Habit | null>;
   updateHabit: (habitId: number, patch: UpdateHabitInput) => Promise<Habit | null>;
@@ -72,18 +90,41 @@ export function HabitsProvider({ children }: { children: React.ReactNode }) {
 
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [habits, setHabits] = useState<Habit[]>([]);
-  const [recentLogs, setRecentLogs] = useState<HabitLog[]>([]);
+  const [logsByKey, setLogsByKey] = useState<Map<string, HabitLog>>(() => new Map());
   const [meta, setMeta] = useState<HabitsMeta | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isMutating, setIsMutating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loadingCount, setLoadingCount] = useState(0);
+  const [rangeError, setRangeError] = useState<string | null>(null);
   const [dialogState, setDialogState] = useState<HabitDialogState>(INITIAL_DIALOG_STATE);
+
+  const coveredIntervalsRef = useRef<DateRangeInterval[]>([]);
+  const inFlightRequestsRef = useRef<Map<string, Promise<void>>>(new Map());
+
+  const resetRangeCache = useCallback(() => {
+    coveredIntervalsRef.current = [];
+    inFlightRequestsRef.current.clear();
+    setLogsByKey(new Map());
+    setRangeError(null);
+  }, []);
+
+  const mergeLogsIntoCache = useCallback((incoming: HabitLog[]) => {
+    if (incoming.length === 0) return;
+    setLogsByKey((prev) => {
+      const next = new Map(prev);
+      for (const log of incoming) {
+        next.set(`${log.habitId}:${log.localDate}`, log);
+      }
+      return next;
+    });
+  }, []);
 
   const loadWorkspaceHabits = useCallback(async () => {
     if (!user) {
       setProfile(null);
       setHabits([]);
-      setRecentLogs([]);
+      resetRangeCache();
       setMeta(null);
       setError(null);
       setIsLoading(false);
@@ -97,7 +138,7 @@ export function HabitsProvider({ children }: { children: React.ReactNode }) {
       if (!token) {
         setProfile(null);
         setHabits([]);
-        setRecentLogs([]);
+        resetRangeCache();
         setMeta(null);
         return;
       }
@@ -124,7 +165,17 @@ export function HabitsProvider({ children }: { children: React.ReactNode }) {
 
       setHabits(habitsResult.habits);
       setMeta(habitsResult.meta);
-      setRecentLogs(logsResult.logs);
+
+      const nextMap = new Map<string, HabitLog>();
+      for (const log of logsResult.logs) {
+        nextMap.set(`${log.habitId}:${log.localDate}`, log);
+      }
+      coveredIntervalsRef.current = [
+        { from: from7Days, to: currentProfile.todayLocalDate },
+      ];
+      inFlightRequestsRef.current.clear();
+      setRangeError(null);
+      setLogsByKey(nextMap);
     } catch (err) {
       const message =
         err instanceof HabitsApiError
@@ -134,14 +185,14 @@ export function HabitsProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  }, [user, getAccessToken]);
+  }, [user, getAccessToken, resetRangeCache]);
 
   useEffect(() => {
     if (isAuthLoading) return;
     if (!user) {
       setProfile(null);
       setHabits([]);
-      setRecentLogs([]);
+      resetRangeCache();
       setMeta(null);
       setError(null);
       setIsLoading(false);
@@ -149,7 +200,83 @@ export function HabitsProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     void loadWorkspaceHabits();
-  }, [user, isAuthLoading, loadWorkspaceHabits]);
+  }, [user, isAuthLoading, loadWorkspaceHabits, resetRangeCache]);
+
+  const ensureLogRangeLoaded = useCallback(
+    async (from: string, to: string, options?: { force?: boolean }): Promise<void> => {
+      if (!user || from > to) return;
+
+      const missingGaps = options?.force
+        ? [{ from, to }]
+        : subtractCoveredIntervals(from, to, coveredIntervalsRef.current);
+
+      if (missingGaps.length === 0) return;
+
+      // Split any gap larger than 365 days into bounded chunks under the 400-day API ceiling
+      const chunks = missingGaps.flatMap((gap) => splitDateRangeChunks(gap.from, gap.to, 365));
+      if (chunks.length === 0) return;
+
+      const batchKey = `${options?.force ? 'force:' : ''}${chunks
+        .map((c) => `${c.from}..${c.to}`)
+        .join(',')}`;
+      const existingPromise = inFlightRequestsRef.current.get(batchKey);
+      if (existingPromise) {
+        return existingPromise;
+      }
+
+      const promise = (async () => {
+        setLoadingCount((c) => c + 1);
+        setRangeError(null);
+        try {
+          const token = await getAccessToken();
+          if (!token) return;
+
+          const chunkResults = await Promise.all(
+            chunks.map((chunk) =>
+              fetchAllHabitLogs(token, { from: chunk.from, to: chunk.to })
+            )
+          );
+
+          const allFetchedLogs = chunkResults.flatMap((res) => res.logs);
+          if (options?.force) {
+            setLogsByKey((prev) => {
+              const next = new Map(prev);
+              for (const key of next.keys()) {
+                const log = next.get(key);
+                if (log && log.localDate >= from && log.localDate <= to) {
+                  next.delete(key);
+                }
+              }
+              for (const log of allFetchedLogs) {
+                next.set(`${log.habitId}:${log.localDate}`, log);
+              }
+              return next;
+            });
+          } else {
+            mergeLogsIntoCache(allFetchedLogs);
+          }
+
+          coveredIntervalsRef.current = mergeDateIntervals([
+            ...coveredIntervalsRef.current,
+            ...chunks,
+          ]);
+        } catch (err) {
+          const message =
+            err instanceof HabitsApiError
+              ? err.message
+              : 'Unable to load historical habit logs right now. Please try again.';
+          setRangeError(message);
+        } finally {
+          inFlightRequestsRef.current.delete(batchKey);
+          setLoadingCount((c) => Math.max(0, c - 1));
+        }
+      })();
+
+      inFlightRequestsRef.current.set(batchKey, promise);
+      return promise;
+    },
+    [user, getAccessToken, mergeLogsIntoCache]
+  );
 
   const updateTimeZone = useCallback(
     async (timezone: string): Promise<UserProfile | null> => {
@@ -171,7 +298,17 @@ export function HabitsProvider({ children }: { children: React.ReactNode }) {
         ]);
         setHabits(habitsResult.habits);
         setMeta(habitsResult.meta);
-        setRecentLogs(logsResult.logs);
+
+        const nextMap = new Map<string, HabitLog>();
+        for (const log of logsResult.logs) {
+          nextMap.set(`${log.habitId}:${log.localDate}`, log);
+        }
+        coveredIntervalsRef.current = [
+          { from: from7Days, to: updatedProfile.todayLocalDate },
+        ];
+        inFlightRequestsRef.current.clear();
+        setRangeError(null);
+        setLogsByKey(nextMap);
 
         pushToast({
           title: 'Timezone saved',
@@ -362,7 +499,15 @@ export function HabitsProvider({ children }: { children: React.ReactNode }) {
       try {
         await deleteHabitRequest(token, habitId);
         setHabits((prev) => prev.filter((item) => item.id !== habitId));
-        setRecentLogs((prev) => prev.filter((log) => log.habitId !== habitId));
+        setLogsByKey((prev) => {
+          const next = new Map(prev);
+          for (const [key, log] of next.entries()) {
+            if (log.habitId === habitId) {
+              next.delete(key);
+            }
+          }
+          return next;
+        });
         pushToast({
           title: 'Habit deleted',
           description: target ? target.name : 'Removed from your habits.',
@@ -393,11 +538,10 @@ export function HabitsProvider({ children }: { children: React.ReactNode }) {
       try {
         const result = await upsertHabitLogRequest(token, habitId, input);
         setHabits((prev) => prev.map((item) => (item.id === habitId ? result.habit : item)));
-        setRecentLogs((prev) => {
-          const withoutCurrent = prev.filter(
-            (l) => !(l.habitId === habitId && l.localDate === result.log.localDate)
-          );
-          return [...withoutCurrent, result.log];
+        setLogsByKey((prev) => {
+          const next = new Map(prev);
+          next.set(`${habitId}:${result.log.localDate}`, result.log);
+          return next;
         });
         pushToast({
           title:
@@ -432,9 +576,11 @@ export function HabitsProvider({ children }: { children: React.ReactNode }) {
       try {
         const result = await deleteHabitLogRequest(token, habitId, localDate);
         setHabits((prev) => prev.map((item) => (item.id === habitId ? result.habit : item)));
-        setRecentLogs((prev) =>
-          prev.filter((l) => !(l.habitId === habitId && l.localDate === localDate))
-        );
+        setLogsByKey((prev) => {
+          const next = new Map(prev);
+          next.delete(`${habitId}:${localDate}`);
+          return next;
+        });
         pushToast({
           title: 'Completion undone',
           description: `${result.habit.name} · ${localDate}`,
@@ -461,10 +607,13 @@ export function HabitsProvider({ children }: { children: React.ReactNode }) {
       const token = await getAccessToken();
       if (!token) return [];
       const res = await fetchHabitLogs(token, habitId, { from, to });
+      mergeLogsIntoCache(res.logs);
       return res.logs;
     },
-    [getAccessToken]
+    [getAccessToken, mergeLogsIntoCache]
   );
+
+  const recentLogs = useMemo(() => Array.from(logsByKey.values()), [logsByKey]);
 
   const openCreateHabit = useCallback(() => {
     setDialogState({ open: true, mode: 'create', habit: null });
@@ -484,12 +633,16 @@ export function HabitsProvider({ children }: { children: React.ReactNode }) {
         profile,
         habits,
         recentLogs,
+        logsByKey,
         meta,
         isLoading,
         isMutating,
         error,
+        isRangeLoading: loadingCount > 0,
+        rangeError,
         dialogState,
         refreshHabits: loadWorkspaceHabits,
+        ensureLogRangeLoaded,
         updateTimeZone,
         createHabit,
         updateHabit,

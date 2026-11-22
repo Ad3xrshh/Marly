@@ -1,8 +1,8 @@
 import React from 'react';
 import { LiveSubTab } from '../../types/marly';
-import { PreviewNotice, SegmentedTabs } from '../../components/ui';
+import { SegmentedTabs } from '../../components/ui';
 import { ActivityHeatmap } from './ActivityHeatmap';
-import { FitnessRoutinesPreview } from './HabitsAndFitnessPreview';
+import { LiveFitnessRoutinesView } from './LiveFitnessRoutinesView';
 import { LiveHabitsView } from './LiveHabitsView';
 import { MonthlyHabitCalendar } from './MonthlyHabitCalendar';
 import { WeeklyHabitMatrix } from './WeeklyHabitMatrix';
@@ -29,7 +29,7 @@ export function LivePage({ activeTab, onNavigate }: LivePageProps) {
             LIVE · Consistency & Activity
           </h2>
           <p className="mt-1 text-sm text-[#A3A3A8]">
-            Scheduled habits, timezone-safe completion logs, and visual consistency previews.
+            Scheduled habits, timezone-safe logs, workout tracking, and repeatable step routines.
           </p>
         </div>
 
@@ -40,20 +40,11 @@ export function LivePage({ activeTab, onNavigate }: LivePageProps) {
         />
       </div>
 
-      {activeTab !== 'habits' && (
-        <PreviewNotice
-          accent="mint"
-          title="Visual Preview Only"
-          phaseLabel="Phases 7–8"
-          description="Habit management and daily logs in the Habits tab are backed by PostgreSQL. Calendar, matrix, heatmap, and fitness analytics views will connect in Phases 7–8."
-        />
-      )}
-
       {activeTab === 'habits' && <LiveHabitsView />}
       {activeTab === 'calendar' && <MonthlyHabitCalendar />}
       {activeTab === 'matrix' && <WeeklyHabitMatrix />}
       {activeTab === 'heatmap' && <ActivityHeatmap />}
-      {activeTab === 'fitness' && <FitnessRoutinesPreview />}
+      {activeTab === 'fitness' && <LiveFitnessRoutinesView />}
     </div>
   );
 }

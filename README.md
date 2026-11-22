@@ -21,21 +21,24 @@ Marly is a unified personal productivity and life-tracking application designed 
 | **Phase 4 (PLAN Calendar)** | PostgreSQL `calendar_events`, `/api/calendar-events` CRUD, Month/Week/Day views, and task due-date calendar integration | **Complete** |
 | **Phase 5 (Projects & Goals)** | PostgreSQL `projects`, `project_milestones`, `goals`, `goal_milestones`, task associations, and deterministic progress calculations | **Complete** |
 | **Phase 6 (Habits & Logs)** | PostgreSQL `habits`, `habit_schedules`, `habit_logs`, authoritative `users.timezone`, deterministic daily/weekly streaks, and HOME / LIVE → Habits integration | **Complete** |
-| **Phase 7–8** | LIVE Monthly Calendar, Weekly Matrix, Activity Heatmap aggregations, Fitness & Routines | Upcoming |
-| **Phase 9–10** | Unified Statistics, full integration testing & polish | Upcoming |
+| **Phase 7 (LIVE Visualizations)** | PostgreSQL-backed Monthly Habit Calendar, Weekly Habit Matrix, Yearly Activity Heatmap, shared historical schedule evaluator, and bounded range-log caching | **Complete** |
+| **Phase 8 (Fitness & Routines)** | PostgreSQL `workout_sessions`, `routines`, `routine_steps`, `routine_logs`, weekly/30-day activity summaries, step execution & immutable snapshot history | **Complete** |
+| **Phase 9 (STATISTICS)** | Server-side cross-pillar aggregation (`GET /api/statistics`), schedule-aware habit & closed-week weekly-quota metrics, dual task throughput vs. due-cohort tracking, Recharts 3.x visualizations | **Complete** |
+| **Phase 10** | Full integration testing & polish | Upcoming |
 | **Phase 11–12** | THINK (Gemini tool-calling intelligence layer) & production deployment | Upcoming |
 
 > **Current Persistence Boundary:**
-> **Tasks** (HOME and PLAN → Tasks), **Calendar Events** (PLAN → Calendar), **Projects, Goals & Milestones** (PLAN → Projects, PLAN → Goals, and HOME Goal Progress), **Habits, Schedules & Completion Logs** (HOME Daily Habits and LIVE → Habits), and **User Timezone Preferences** (Settings) are backed by PostgreSQL + Drizzle ORM and scoped to your authenticated Google account. LIVE Calendar/Matrix/Heatmap/Fitness previews, Home schedule timeline preview, Statistics, and THINK previews continue using **isolated client-side demonstration data**.
+> **Tasks** (HOME and PLAN → Tasks), **Calendar Events** (PLAN → Calendar), **Projects, Goals & Milestones** (PLAN → Projects, PLAN → Goals, and HOME Goal Progress), **Habits, Schedules & Completion Logs** (HOME Daily Habits, LIVE → Habits, Habit Calendar, Weekly Matrix, and Activity Heatmap), **Workouts, Routines, Routine Steps & Execution Logs** (LIVE → Fitness & Routines), **Unified Statistics** (STATISTICS), and **User Timezone Preferences** (Settings) are backed by PostgreSQL + Drizzle ORM and scoped to your authenticated Google account. Only the Home schedule timeline preview and THINK preview continue using **isolated client-side demonstration data**.
 
 ---
 
 ## Technology Stack
 
-### Active in Phases 3–6
+### Active in Phases 3–9
 - **Frontend**: React 19, TypeScript, Vite 8
 - **Styling**: Tailwind CSS v4 (`@tailwindcss/vite`) with custom semantic design tokens
 - **Typography**: `Manrope` (UI & display) + `JetBrains Mono` (tabular metrics & time readouts)
+- **Charts**: Recharts 3.x (responsive, minimal dark-surface analytics visualizations)
 - **Icons & Motion**: `lucide-react`, `motion` (restrained compositor transitions)
 - **Routing**: Zero-dependency History API URL-aware router (`src/lib/router.ts`)
 - **Backend API**: Node.js + Express (`server.ts` integrated with Vite middleware)
@@ -44,7 +47,6 @@ Marly is a unified personal productivity and life-tracking application designed 
 - **Authentication**: Firebase Authentication (Google Sign-In + `firebase-admin` verification)
 
 ### Planned for Upcoming Phases
-- **Charts**: Recharts (for unified Statistics)
 - **AI Layer (Phase 11)**: `@google/genai` (Gemini API via backend-controlled tool execution)
 - **Testing**: Vitest + API/integration tests
 

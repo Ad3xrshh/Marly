@@ -22,6 +22,8 @@ export interface HabitSchedule {
   weekdays: number[];
   weekdaysMask: number;
   targetPerWeek: number | null;
+  createdAt: string;
+  updatedAt: string;
   label: string;
 }
 

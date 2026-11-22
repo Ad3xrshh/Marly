@@ -2,24 +2,15 @@ import { useMemo, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useCalendarContext } from '../context/CalendarContext';
 import { useDemoState } from '../context/DemoStateContext';
+import { useFitnessRoutinesContext } from '../context/FitnessRoutinesContext';
 import { useHabitsContext } from '../context/HabitsContext';
 import { useProjectsGoalsContext } from '../context/ProjectsGoalsContext';
 import { useTasksContext } from '../context/TasksContext';
 import {
-  DEMO_HEATMAP_CELLS,
-  DEMO_HEATMAP_MONTHLY_TREND,
-  DEMO_HEATMAP_STATS,
-  DEMO_MONTHLY_CALENDARS,
-  DEMO_ROUTINES_PREVIEW,
   DEMO_SCHEDULE_BLOCKS,
   DEMO_SEVEN_DAY_HABIT_RATES,
-  DEMO_STATISTICS_SUMMARY,
   DEMO_TODAY_LABEL,
   DEMO_WEEK_DAYS,
-  DEMO_WEEK_RANGE_LABEL,
-  DEMO_WEEKDAY_FREQUENCY,
-  DEMO_WORKOUTS_PREVIEW,
-  MATRIX_WEEKDAYS,
 } from '../data/demoData';
 import {
   addDaysToLocalDate,
@@ -40,8 +31,8 @@ export type TaskCategoryFilterOption = 'All' | TaskCategory;
 
 /**
  * Clean data-access boundary for Marly features.
- * Tasks, Calendar Events, Projects, and Goals resolve from PostgreSQL via authenticated Express/Drizzle endpoints (Phases 3-5);
- * Habits, Schedule timeline, LIVE views, and Statistics remain isolated Phase 1 previews.
+ * Tasks, Calendar Events, Projects, Goals, Habits, Fitness/Routines, and Statistics resolve from PostgreSQL via authenticated Express/Drizzle endpoints;
+ * HOME Schedule timeline and THINK remain preview/upcoming pillars.
  */
 
 export function useTasksOverviewData() {
@@ -437,80 +428,197 @@ export function useProjectsAndGoalsData() {
 }
 
 export function useMonthlyCalendarData() {
+  const { user, isAuthLoading, isSigningIn, signInWithGoogle } = useAuth();
+  const {
+    profile,
+    habits,
+    logsByKey,
+    meta,
+    isLoading,
+    isMutating,
+    error,
+    isRangeLoading,
+    rangeError,
+    refreshHabits,
+    ensureLogRangeLoaded,
+    upsertHabitLog,
+    undoHabitLog,
+    openCreateHabit,
+  } = useHabitsContext();
+
+  const todayLocalDate =
+    meta?.todayLocalDate ?? profile?.todayLocalDate ?? getTodayLocalDate();
+  const effectiveTimezone = meta?.timezone ?? profile?.effectiveTimezone ?? 'UTC';
+
   return {
-    months: DEMO_MONTHLY_CALENDARS,
-    defaultMonthIndex: 1, // March 2026
-    defaultSelectedDay: 24, // Today: Tue Mar 24, 2026
+    isAuthenticated: Boolean(user),
+    isAuthLoading,
+    isSigningIn,
+    signInWithGoogle,
+    habits,
+    logsByKey,
+    todayLocalDate,
+    effectiveTimezone,
+    isLoading: isLoading || isRangeLoading,
+    isMutating,
+    error: error || rangeError,
+    refreshHabits,
+    ensureLogRangeLoaded,
+    upsertHabitLog,
+    undoHabitLog,
+    openCreateHabit,
   };
 }
 
 export function useWeeklyMatrixData() {
-  const { matrixHabits, toggleMatrixCell } = useDemoState();
+  const { user, isAuthLoading, isSigningIn, signInWithGoogle } = useAuth();
+  const {
+    profile,
+    habits,
+    logsByKey,
+    meta,
+    isLoading,
+    isMutating,
+    error,
+    isRangeLoading,
+    rangeError,
+    refreshHabits,
+    ensureLogRangeLoaded,
+    upsertHabitLog,
+    undoHabitLog,
+    openCreateHabit,
+  } = useHabitsContext();
+
+  const todayLocalDate =
+    meta?.todayLocalDate ?? profile?.todayLocalDate ?? getTodayLocalDate();
+  const effectiveTimezone = meta?.timezone ?? profile?.effectiveTimezone ?? 'UTC';
 
   return {
-    weekRangeLabel: DEMO_WEEK_RANGE_LABEL,
-    weekdays: MATRIX_WEEKDAYS,
-    matrixHabits,
-    toggleMatrixCell,
+    isAuthenticated: Boolean(user),
+    isAuthLoading,
+    isSigningIn,
+    signInWithGoogle,
+    habits,
+    logsByKey,
+    todayLocalDate,
+    effectiveTimezone,
+    isLoading: isLoading || isRangeLoading,
+    isMutating,
+    error: error || rangeError,
+    refreshHabits,
+    ensureLogRangeLoaded,
+    upsertHabitLog,
+    undoHabitLog,
+    openCreateHabit,
   };
 }
 
 export function useActivityHeatmapData() {
+  const { user, isAuthLoading, isSigningIn, signInWithGoogle } = useAuth();
+  const {
+    profile,
+    habits,
+    logsByKey,
+    meta,
+    isLoading,
+    error,
+    isRangeLoading,
+    rangeError,
+    refreshHabits,
+    ensureLogRangeLoaded,
+    openCreateHabit,
+  } = useHabitsContext();
+
+  const todayLocalDate =
+    meta?.todayLocalDate ?? profile?.todayLocalDate ?? getTodayLocalDate();
+  const effectiveTimezone = meta?.timezone ?? profile?.effectiveTimezone ?? 'UTC';
+
   return {
-    cells: DEMO_HEATMAP_CELLS,
-    stats: DEMO_HEATMAP_STATS,
-    monthlyTrend: DEMO_HEATMAP_MONTHLY_TREND,
-    weekdayFrequency: DEMO_WEEKDAY_FREQUENCY,
+    isAuthenticated: Boolean(user),
+    isAuthLoading,
+    isSigningIn,
+    signInWithGoogle,
+    habits,
+    logsByKey,
+    todayLocalDate,
+    effectiveTimezone,
+    isLoading: isLoading || isRangeLoading,
+    error: error || rangeError,
+    refreshHabits,
+    ensureLogRangeLoaded,
+    openCreateHabit,
   };
 }
 
 export function useFitnessAndRoutinesData() {
+  const { user, isAuthLoading, isSigningIn, signInWithGoogle } = useAuth();
+  const { searchQuery } = useDemoState();
+  const {
+    workouts,
+    workoutSummary,
+    routines,
+    todayLocalDate,
+    effectiveTimezone,
+    isLoading,
+    isMutating,
+    error,
+    refreshFitnessAndRoutines,
+    createWorkout,
+    updateWorkout,
+    deleteWorkout,
+    createRoutine,
+    updateRoutine,
+    archiveRoutine,
+    restoreRoutine,
+    deleteRoutine,
+    addRoutineStep,
+    updateRoutineStep,
+    deleteRoutineStep,
+    reorderRoutineSteps,
+    upsertRoutineLog,
+    resetRoutineLog,
+    loadRoutineLogsRange,
+    openCreateWorkout,
+    openEditWorkout,
+    openCreateRoutine,
+    openEditRoutine,
+  } = useFitnessRoutinesContext();
+
   return {
-    workouts: DEMO_WORKOUTS_PREVIEW,
-    routines: DEMO_ROUTINES_PREVIEW,
+    isAuthenticated: Boolean(user),
+    isAuthLoading,
+    isSigningIn,
+    signInWithGoogle,
+    workouts,
+    workoutSummary,
+    routines,
+    todayLocalDate,
+    effectiveTimezone,
+    isLoading,
+    isMutating,
+    error,
+    searchQuery,
+    refreshFitnessAndRoutines,
+    createWorkout,
+    updateWorkout,
+    deleteWorkout,
+    createRoutine,
+    updateRoutine,
+    archiveRoutine,
+    restoreRoutine,
+    deleteRoutine,
+    addRoutineStep,
+    updateRoutineStep,
+    deleteRoutineStep,
+    reorderRoutineSteps,
+    upsertRoutineLog,
+    resetRoutineLog,
+    loadRoutineLogsRange,
+    openCreateWorkout,
+    openEditWorkout,
+    openCreateRoutine,
+    openEditRoutine,
   };
 }
 
-export function useStatisticsPreviewData() {
-  const { user } = useAuth();
-  const { tasks: demoTasks, habits: demoHabits } = useDemoState();
-  const { tasks: realTasks } = useTasksContext();
-  const { habits: realHabits } = useHabitsContext();
-
-  let todayHabitCompleted = 0;
-  let todayHabitTotal = 0;
-
-  if (user) {
-    const scheduledActive = realHabits.filter((h) => h.status === 'active' && h.scheduledToday);
-    todayHabitTotal = scheduledActive.length;
-    todayHabitCompleted = scheduledActive.filter(
-      (h) => h.todayLog?.statusSnapshot === 'completed'
-    ).length;
-  } else {
-    todayHabitTotal = demoHabits.length;
-    todayHabitCompleted = demoHabits.filter((h) => h.completedToday).length;
-  }
-
-  let todayTaskRate = 0;
-  if (user) {
-    const todayIso = getTodayLocalDate();
-    const todayTasks = realTasks.filter((t) => t.dueDate === todayIso);
-    const pool = todayTasks.length > 0 ? todayTasks : realTasks;
-    const completedCount = pool.filter((t) => t.status === 'completed').length;
-    todayTaskRate = pool.length > 0 ? Math.round((completedCount / pool.length) * 100) : 0;
-  } else {
-    const completedTodayTasks = demoTasks.filter(
-      (t) => t.bucket === 'today' && t.completed
-    ).length;
-    const totalTodayTasks = demoTasks.filter((t) => t.bucket === 'today').length;
-    todayTaskRate =
-      totalTodayTasks > 0 ? Math.round((completedTodayTasks / totalTodayTasks) * 100) : 0;
-  }
-
-  return {
-    summary: DEMO_STATISTICS_SUMMARY,
-    todayTaskRate,
-    todayHabitCompleted,
-    todayHabitTotal,
-  };
-}
+export { useStatisticsData } from './useStatisticsData';

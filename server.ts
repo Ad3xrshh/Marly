@@ -8,7 +8,10 @@ import goalsRouter from './src/routes/goals.ts';
 import habitsRouter, { habitLogsRouter } from './src/routes/habits.ts';
 import meRouter from './src/routes/me.ts';
 import projectsRouter from './src/routes/projects.ts';
+import routinesRouter from './src/routes/routines.ts';
+import statisticsRouter from './src/routes/statistics.ts';
 import tasksRouter from './src/routes/tasks.ts';
+import workoutsRouter from './src/routes/workouts.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -40,6 +43,9 @@ async function startServer() {
   app.use('/api/goals', goalsRouter);
   app.use('/api/habits', habitsRouter);
   app.use('/api/habit-logs', habitLogsRouter);
+  app.use('/api/workouts', workoutsRouter);
+  app.use('/api/routines', routinesRouter);
+  app.use('/api/statistics', statisticsRouter);
 
   app.use('/api', (_req: Request, res: Response) => {
     res.status(404).json({ error: 'API endpoint not found' });

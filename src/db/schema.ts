@@ -4,6 +4,7 @@ import {
   doublePrecision,
   index,
   integer,
+  jsonb,
   pgTable,
   serial,
   text,
@@ -21,6 +22,24 @@ export type HabitStatusValue = 'active' | 'archived';
 export type HabitTrackingTypeValue = 'boolean' | 'measurable';
 export type HabitFrequencyTypeValue = 'daily' | 'weekdays' | 'times_per_week';
 export type HabitLogStatusSnapshotValue = 'completed' | 'partial';
+
+export type WorkoutActivityTypeValue =
+  | 'Strength'
+  | 'Cardio'
+  | 'Mobility'
+  | 'Recovery'
+  | 'Sport'
+  | 'Other';
+export type RoutineTimeOfDayValue = 'Morning' | 'Afternoon' | 'Evening' | 'Anytime';
+export type RoutineScheduleTypeValue = 'daily' | 'weekdays' | 'as_needed';
+export type RoutineStatusValue = 'active' | 'archived';
+export type RoutineLogStatusValue = 'in_progress' | 'completed';
+
+export interface RoutineStepSnapshotItem {
+  stepId: number;
+  title: string;
+  durationMinutes: number | null;
+}
 
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
@@ -272,6 +291,122 @@ export const habitLogs = pgTable(
   ]
 );
 
+export const workoutSessions = pgTable(
+  'workout_sessions',
+  {
+    id: serial('id').primaryKey(),
+    userId: integer('user_id')
+      .references(() => users.id, { onDelete: 'cascade' })
+      .notNull(),
+    title: text('title').notNull(),
+    activityType: text('activity_type')
+      .$type<WorkoutActivityTypeValue>()
+      .notNull()
+      .default('Strength'),
+    // Explicit user-local calendar date (YYYY-MM-DD)
+    localDate: text('local_date').notNull(),
+    // Optional 24h local time string (HH:mm)
+    startTime: text('start_time'),
+    durationMinutes: integer('duration_minutes').notNull(),
+    notes: text('notes'),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index('workout_sessions_user_date_idx').on(table.userId, table.localDate),
+    index('workout_sessions_user_type_idx').on(table.userId, table.activityType),
+  ]
+);
+
+export const routines = pgTable(
+  'routines',
+  {
+    id: serial('id').primaryKey(),
+    userId: integer('user_id')
+      .references(() => users.id, { onDelete: 'cascade' })
+      .notNull(),
+    name: text('name').notNull(),
+    description: text('description'),
+    timeOfDay: text('time_of_day')
+      .$type<RoutineTimeOfDayValue>()
+      .notNull()
+      .default('Anytime'),
+    preferredTime: text('preferred_time'),
+    scheduleType: text('schedule_type')
+      .$type<RoutineScheduleTypeValue>()
+      .notNull()
+      .default('daily'),
+    weekdaysMask: integer('weekdays_mask').notNull().default(127),
+    status: text('status').$type<RoutineStatusValue>().notNull().default('active'),
+    archivedAt: timestamp('archived_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [index('routines_user_id_idx').on(table.userId)]
+);
+
+export const routineSteps = pgTable(
+  'routine_steps',
+  {
+    id: serial('id').primaryKey(),
+    routineId: integer('routine_id')
+      .references(() => routines.id, { onDelete: 'cascade' })
+      .notNull(),
+    userId: integer('user_id')
+      .references(() => users.id, { onDelete: 'cascade' })
+      .notNull(),
+    title: text('title').notNull(),
+    durationMinutes: integer('duration_minutes'),
+    sortOrder: integer('sort_order').notNull().default(0),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index('routine_steps_routine_order_idx').on(table.routineId, table.sortOrder, table.id),
+    index('routine_steps_user_id_idx').on(table.userId),
+  ]
+);
+
+export const routineLogs = pgTable(
+  'routine_logs',
+  {
+    id: serial('id').primaryKey(),
+    routineId: integer('routine_id')
+      .references(() => routines.id, { onDelete: 'cascade' })
+      .notNull(),
+    userId: integer('user_id')
+      .references(() => users.id, { onDelete: 'cascade' })
+      .notNull(),
+    localDate: text('local_date').notNull(),
+    completedStepIds: jsonb('completed_step_ids')
+      .$type<number[]>()
+      .notNull()
+      .default([]),
+    // Lightweight historical snapshots preserved even if routine steps are later renamed, reordered, or deleted
+    stepsSnapshot: jsonb('steps_snapshot')
+      .$type<RoutineStepSnapshotItem[]>()
+      .notNull()
+      .default([]),
+    completedStepsSnapshot: jsonb('completed_steps_snapshot')
+      .$type<RoutineStepSnapshotItem[]>()
+      .notNull()
+      .default([]),
+    completedStepsCount: integer('completed_steps_count').notNull().default(0),
+    totalStepsSnapshot: integer('total_steps_snapshot').notNull().default(0),
+    status: text('status')
+      .$type<RoutineLogStatusValue>()
+      .notNull()
+      .default('in_progress'),
+    completedAt: timestamp('completed_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex('routine_logs_routine_local_date_uidx').on(table.routineId, table.localDate),
+    index('routine_logs_user_local_date_idx').on(table.userId, table.localDate),
+  ]
+);
+
 export const usersRelations = relations(users, ({ many }) => ({
   tasks: many(tasks),
   calendarEvents: many(calendarEvents),
@@ -280,6 +415,10 @@ export const usersRelations = relations(users, ({ many }) => ({
   habits: many(habits),
   habitSchedules: many(habitSchedules),
   habitLogs: many(habitLogs),
+  workoutSessions: many(workoutSessions),
+  routines: many(routines),
+  routineSteps: many(routineSteps),
+  routineLogs: many(routineLogs),
 }));
 
 export const goalsRelations = relations(goals, ({ one, many }) => ({
@@ -393,6 +532,44 @@ export const habitLogsRelations = relations(habitLogs, ({ one }) => ({
   }),
 }));
 
+export const workoutSessionsRelations = relations(workoutSessions, ({ one }) => ({
+  owner: one(users, {
+    fields: [workoutSessions.userId],
+    references: [users.id],
+  }),
+}));
+
+export const routinesRelations = relations(routines, ({ one, many }) => ({
+  owner: one(users, {
+    fields: [routines.userId],
+    references: [users.id],
+  }),
+  steps: many(routineSteps),
+  logs: many(routineLogs),
+}));
+
+export const routineStepsRelations = relations(routineSteps, ({ one }) => ({
+  routine: one(routines, {
+    fields: [routineSteps.routineId],
+    references: [routines.id],
+  }),
+  owner: one(users, {
+    fields: [routineSteps.userId],
+    references: [users.id],
+  }),
+}));
+
+export const routineLogsRelations = relations(routineLogs, ({ one }) => ({
+  routine: one(routines, {
+    fields: [routineLogs.routineId],
+    references: [routines.id],
+  }),
+  owner: one(users, {
+    fields: [routineLogs.userId],
+    references: [users.id],
+  }),
+}));
+
 export type UserRecord = typeof users.$inferSelect;
 export type GoalRecord = typeof goals.$inferSelect;
 export type GoalMilestoneRecord = typeof goalMilestones.$inferSelect;
@@ -403,3 +580,7 @@ export type CalendarEventRecord = typeof calendarEvents.$inferSelect;
 export type HabitRecord = typeof habits.$inferSelect;
 export type HabitScheduleRecord = typeof habitSchedules.$inferSelect;
 export type HabitLogRecord = typeof habitLogs.$inferSelect;
+export type WorkoutSessionRecord = typeof workoutSessions.$inferSelect;
+export type RoutineRecord = typeof routines.$inferSelect;
+export type RoutineStepRecord = typeof routineSteps.$inferSelect;
+export type RoutineLogRecord = typeof routineLogs.$inferSelect;

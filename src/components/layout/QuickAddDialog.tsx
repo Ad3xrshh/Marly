@@ -5,14 +5,15 @@ import {
   Calendar,
   CheckSquare,
   Dumbbell,
+  ListChecks,
   Target,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useCalendarContext } from '../../context/CalendarContext';
+import { useFitnessRoutinesContext } from '../../context/FitnessRoutinesContext';
 import { useHabitsContext } from '../../context/HabitsContext';
 import { useProjectsGoalsContext } from '../../context/ProjectsGoalsContext';
 import { useTasksContext } from '../../context/TasksContext';
-import { useToast } from '../../context/ToastContext';
 import { Dialog } from '../ui';
 
 interface QuickAddDialogProps {
@@ -61,11 +62,20 @@ const QUICK_ADD_OPTIONS = [
   {
     id: 'workout',
     title: 'Log Workout',
-    description: 'Session duration, workout type, and optional exercise sets.',
-    phase: 'Phase 8 · LIVE',
+    description: 'Activity type, date, optional start time, duration, and session notes.',
+    phase: 'Live · LIVE',
     targetPath: '/live/fitness',
     accent: 'text-[#F19A50] bg-[#F19A50]/12',
     icon: <Dumbbell className="h-4 w-4" />,
+  },
+  {
+    id: 'routine',
+    title: 'New Routine',
+    description: 'Repeatable step-by-step checklist for morning, evening, or recovery.',
+    phase: 'Live · LIVE',
+    targetPath: '/live/fitness',
+    accent: 'text-[#96D2C5] bg-[#96D2C5]/12',
+    icon: <ListChecks className="h-4 w-4" />,
   },
 ];
 
@@ -75,7 +85,7 @@ export function QuickAddDialog({ open, onClose, onNavigate }: QuickAddDialogProp
   const { openCreateEvent } = useCalendarContext();
   const { openCreateHabit } = useHabitsContext();
   const { openCreateGoal } = useProjectsGoalsContext();
-  const { pushToast } = useToast();
+  const { openCreateWorkout, openCreateRoutine } = useFitnessRoutinesContext();
 
   const handleSelect = async (option: (typeof QUICK_ADD_OPTIONS)[number]) => {
     onClose();
@@ -136,12 +146,35 @@ export function QuickAddDialog({ open, onClose, onNavigate }: QuickAddDialogProp
       return;
     }
 
+    if (option.id === 'workout') {
+      if (user) {
+        openCreateWorkout();
+      } else {
+        const signedIn = await signInWithGoogle();
+        if (signedIn) {
+          openCreateWorkout();
+        } else {
+          onNavigate('/live/fitness');
+        }
+      }
+      return;
+    }
+
+    if (option.id === 'routine') {
+      if (user) {
+        openCreateRoutine();
+      } else {
+        const signedIn = await signInWithGoogle();
+        if (signedIn) {
+          openCreateRoutine();
+        } else {
+          onNavigate('/live/fitness');
+        }
+      }
+      return;
+    }
+
     onNavigate(option.targetPath);
-    pushToast({
-      title: `${option.title} preview`,
-      description: `Creation forms and persistence arrive in ${option.phase}.`,
-      variant: 'info',
-    });
   };
 
   return (
@@ -149,7 +182,7 @@ export function QuickAddDialog({ open, onClose, onNavigate }: QuickAddDialogProp
       open={open}
       onClose={onClose}
       title="Quick Add"
-      subtitle="Create a new task or jump to an upcoming workspace destination."
+      subtitle="Create a new item in your Marly workspace."
     >
       <div className="divide-y divide-white/[0.07] rounded-xl border border-white/[0.07] bg-[#1A1A1A]">
         {QUICK_ADD_OPTIONS.map((option) => (

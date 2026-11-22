@@ -332,17 +332,24 @@ export async function updateUserHabit(params: {
 
     if (patch.schedule) {
       if (schedule) {
-        const [updatedSchedule] = await tx
-          .update(habitSchedules)
-          .set({
-            frequencyType: patch.schedule.frequencyType,
-            weekdaysMask: patch.schedule.weekdaysMask,
-            targetPerWeek: patch.schedule.targetPerWeek,
-            updatedAt: now,
-          })
-          .where(and(eq(habitSchedules.id, schedule.id), eq(habitSchedules.userId, userId)))
-          .returning();
-        schedule = updatedSchedule;
+        const scheduleChanged =
+          schedule.frequencyType !== patch.schedule.frequencyType ||
+          schedule.weekdaysMask !== patch.schedule.weekdaysMask ||
+          schedule.targetPerWeek !== patch.schedule.targetPerWeek;
+
+        if (scheduleChanged) {
+          const [updatedSchedule] = await tx
+            .update(habitSchedules)
+            .set({
+              frequencyType: patch.schedule.frequencyType,
+              weekdaysMask: patch.schedule.weekdaysMask,
+              targetPerWeek: patch.schedule.targetPerWeek,
+              updatedAt: now,
+            })
+            .where(and(eq(habitSchedules.id, schedule.id), eq(habitSchedules.userId, userId)))
+            .returning();
+          schedule = updatedSchedule;
+        }
       } else {
         const [createdSchedule] = await tx
           .insert(habitSchedules)
@@ -410,19 +417,28 @@ export async function updateUserHabitSchedule(params: {
 
     let schedule: HabitScheduleRecord;
     if (existingSchedule) {
-      const [updatedSchedule] = await tx
-        .update(habitSchedules)
-        .set({
-          frequencyType: scheduleInput.frequencyType,
-          weekdaysMask: scheduleInput.weekdaysMask,
-          targetPerWeek: scheduleInput.targetPerWeek,
-          updatedAt: now,
-        })
-        .where(
-          and(eq(habitSchedules.id, existingSchedule.id), eq(habitSchedules.userId, userId))
-        )
-        .returning();
-      schedule = updatedSchedule;
+      const scheduleChanged =
+        existingSchedule.frequencyType !== scheduleInput.frequencyType ||
+        existingSchedule.weekdaysMask !== scheduleInput.weekdaysMask ||
+        existingSchedule.targetPerWeek !== scheduleInput.targetPerWeek;
+
+      if (scheduleChanged) {
+        const [updatedSchedule] = await tx
+          .update(habitSchedules)
+          .set({
+            frequencyType: scheduleInput.frequencyType,
+            weekdaysMask: scheduleInput.weekdaysMask,
+            targetPerWeek: scheduleInput.targetPerWeek,
+            updatedAt: now,
+          })
+          .where(
+            and(eq(habitSchedules.id, existingSchedule.id), eq(habitSchedules.userId, userId))
+          )
+          .returning();
+        schedule = updatedSchedule;
+      } else {
+        schedule = existingSchedule;
+      }
     } else {
       const [createdSchedule] = await tx
         .insert(habitSchedules)
@@ -734,6 +750,8 @@ export function serializeHabit(hydrated: HydratedHabitRecord) {
       weekdays,
       weekdaysMask: schedule.weekdaysMask,
       targetPerWeek: schedule.targetPerWeek,
+      createdAt: schedule.createdAt.toISOString(),
+      updatedAt: schedule.updatedAt.toISOString(),
       label: formatScheduleLabel({
         frequencyType: schedule.frequencyType,
         weekdays,

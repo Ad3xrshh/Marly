@@ -11,6 +11,7 @@ import { EmptyState } from './components/ui';
 import { AuthProvider } from './context/AuthContext';
 import { CalendarProvider } from './context/CalendarContext';
 import { DemoStateProvider } from './context/DemoStateContext';
+import { FitnessRoutinesProvider } from './context/FitnessRoutinesContext';
 import { HabitsProvider } from './context/HabitsContext';
 import { ProjectsGoalsProvider } from './context/ProjectsGoalsContext';
 import { TasksProvider } from './context/TasksContext';
@@ -42,7 +43,7 @@ function MarlyWorkspace() {
           {route.section === 'plan' && <PlanPage activeTab={route.planTab} onNavigate={navigate} />}
           {route.section === 'live' && <LivePage activeTab={route.liveTab} onNavigate={navigate} />}
           {route.section === 'think' && <ThinkPage />}
-          {route.section === 'statistics' && <StatisticsPage />}
+          {route.section === 'statistics' && <StatisticsPage onNavigate={navigate} />}
           {route.section === 'settings' && <SettingsPage />}
         </>
       )}
@@ -59,9 +60,11 @@ export default function App() {
             <ProjectsGoalsProvider>
               <CalendarProvider>
                 <HabitsProvider>
-                  <DemoStateProvider>
-                    <MarlyWorkspace />
-                  </DemoStateProvider>
+                  <FitnessRoutinesProvider>
+                    <DemoStateProvider>
+                      <MarlyWorkspace />
+                    </DemoStateProvider>
+                  </FitnessRoutinesProvider>
                 </HabitsProvider>
               </CalendarProvider>
             </ProjectsGoalsProvider>

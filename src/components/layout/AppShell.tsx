@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { HabitFormDialog } from '../../features/live/HabitFormDialog';
+import { RoutineFormDialog } from '../../features/live/RoutineFormDialog';
+import { WorkoutFormDialog } from '../../features/live/WorkoutFormDialog';
 import { CalendarEventFormDialog } from '../../features/plan/CalendarEventFormDialog';
 import { GoalFormDialog } from '../../features/plan/GoalFormDialog';
 import { ProjectFormDialog } from '../../features/plan/ProjectFormDialog';
@@ -60,6 +62,8 @@ export function AppShell({ route, onNavigate, children }: AppShellProps) {
       <ProjectFormDialog />
       <GoalFormDialog />
       <HabitFormDialog />
+      <WorkoutFormDialog />
+      <RoutineFormDialog />
     </div>
   );
 }
