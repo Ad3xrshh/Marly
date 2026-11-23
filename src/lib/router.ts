@@ -4,12 +4,20 @@ import { LiveSubTab, PlanSubTab, PrimaryRoute, RouteState } from '../types/marly
 const PLAN_TABS: PlanSubTab[] = ['tasks', 'calendar', 'projects', 'goals'];
 const LIVE_TABS: LiveSubTab[] = ['calendar', 'matrix', 'heatmap', 'habits', 'fitness'];
 
-export function parseRoute(pathname: string): RouteState {
+export function parseRoute(pathname: string, search = ''): RouteState {
   const clean = pathname.replace(/\/+$/, '') || '/';
   const segments = clean.split('/').filter(Boolean);
+  const normalizedSearch = search && !search.startsWith('?') ? `?${search}` : search;
 
   if (segments.length === 0) {
-    return { path: '/', section: 'home', planTab: 'tasks', liveTab: 'calendar', isNotFound: false };
+    return {
+      path: '/',
+      search: normalizedSearch,
+      section: 'home',
+      planTab: 'tasks',
+      liveTab: 'calendar',
+      isNotFound: false,
+    };
   }
 
   const head = segments[0] as PrimaryRoute;
@@ -21,6 +29,7 @@ export function parseRoute(pathname: string): RouteState {
       const planTab = PLAN_TABS.includes(sub as PlanSubTab) ? (sub as PlanSubTab) : 'tasks';
       return {
         path: `/plan/${planTab}`,
+        search: normalizedSearch,
         section: 'plan',
         planTab,
         liveTab: 'calendar',
@@ -32,6 +41,7 @@ export function parseRoute(pathname: string): RouteState {
       const liveTab = LIVE_TABS.includes(sub as LiveSubTab) ? (sub as LiveSubTab) : 'calendar';
       return {
         path: `/live/${liveTab}`,
+        search: normalizedSearch,
         section: 'live',
         planTab: 'tasks',
         liveTab,
@@ -41,6 +51,7 @@ export function parseRoute(pathname: string): RouteState {
     case 'think':
       return {
         path: '/think',
+        search: normalizedSearch,
         section: 'think',
         planTab: 'tasks',
         liveTab: 'calendar',
@@ -49,6 +60,7 @@ export function parseRoute(pathname: string): RouteState {
     case 'statistics':
       return {
         path: '/statistics',
+        search: normalizedSearch,
         section: 'statistics',
         planTab: 'tasks',
         liveTab: 'calendar',
@@ -57,6 +69,7 @@ export function parseRoute(pathname: string): RouteState {
     case 'settings':
       return {
         path: '/settings',
+        search: normalizedSearch,
         section: 'settings',
         planTab: 'tasks',
         liveTab: 'calendar',
@@ -65,6 +78,7 @@ export function parseRoute(pathname: string): RouteState {
     default:
       return {
         path: clean,
+        search: normalizedSearch,
         section: 'home',
         planTab: 'tasks',
         liveTab: 'calendar',
@@ -78,31 +92,45 @@ export function useMarlyRoute() {
     if (typeof window === 'undefined') {
       return parseRoute('/');
     }
-    const parsed = parseRoute(window.location.pathname);
+    const parsed = parseRoute(window.location.pathname, window.location.search);
     // Normalize canonical aliases like /plan -> /plan/tasks or /live -> /live/calendar
     if (!parsed.isNotFound && window.location.pathname !== parsed.path) {
-      window.history.replaceState({}, '', `${parsed.path}${window.location.search}${window.location.hash}`);
+      window.history.replaceState(
+        {},
+        '',
+        `${parsed.path}${window.location.search}${window.location.hash}`
+      );
     }
     return parsed;
   });
 
   useEffect(() => {
-    const handlePopState = () => {
-      const parsed = parseRoute(window.location.pathname);
+    const handleLocationSync = () => {
+      const parsed = parseRoute(window.location.pathname, window.location.search);
       if (!parsed.isNotFound && window.location.pathname !== parsed.path) {
-        window.history.replaceState({}, '', `${parsed.path}${window.location.search}${window.location.hash}`);
+        window.history.replaceState(
+          {},
+          '',
+          `${parsed.path}${window.location.search}${window.location.hash}`
+        );
       }
       setRoute(parsed);
     };
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
+    window.addEventListener('popstate', handleLocationSync);
+    window.addEventListener('marly:searchchange', handleLocationSync);
+    return () => {
+      window.removeEventListener('popstate', handleLocationSync);
+      window.removeEventListener('marly:searchchange', handleLocationSync);
+    };
   }, []);
 
   const navigate = useCallback((targetPath: string) => {
-    const url = typeof window !== 'undefined'
-      ? new URL(targetPath, window.location.origin)
-      : { pathname: targetPath, search: '', hash: '' };
-    const next = parseRoute(url.pathname);
+    const prevPath = typeof window !== 'undefined' ? window.location.pathname : '';
+    const url =
+      typeof window !== 'undefined'
+        ? new URL(targetPath, window.location.origin)
+        : { pathname: targetPath, search: '', hash: '' };
+    const next = parseRoute(url.pathname, url.search);
     const fullTarget = `${next.path}${url.search}${url.hash}`;
 
     if (
@@ -112,7 +140,7 @@ export function useMarlyRoute() {
       window.history.pushState({}, '', fullTarget);
     }
     setRoute(next);
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && (!url.search || prevPath !== next.path)) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, []);

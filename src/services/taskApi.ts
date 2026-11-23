@@ -40,6 +40,13 @@ async function requestJson<T>(url: string, token: string, init?: RequestInit): P
     throw new TaskApiError(message, response.status, details);
   }
 
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+    throw new TaskApiError(
+      'Received an unexpected or empty response from the server.',
+      response.status || 502
+    );
+  }
+
   return payload as T;
 }
 

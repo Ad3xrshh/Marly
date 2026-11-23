@@ -51,6 +51,13 @@ async function handleApiResponse<T>(response: Response): Promise<T> {
     throw new FitnessRoutinesApiError(message, response.status, fieldErrors);
   }
 
+  if (!data || typeof data !== 'object' || Array.isArray(data)) {
+    throw new FitnessRoutinesApiError(
+      'Received an unexpected or empty response from the server.',
+      response.status || 502
+    );
+  }
+
   return data as T;
 }
 

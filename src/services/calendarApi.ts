@@ -45,6 +45,13 @@ async function requestJson<T>(url: string, token: string, init?: RequestInit): P
     throw new CalendarApiError(message, response.status, details);
   }
 
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+    throw new CalendarApiError(
+      'Received an unexpected or empty response from the server.',
+      response.status || 502
+    );
+  }
+
   return payload as T;
 }
 

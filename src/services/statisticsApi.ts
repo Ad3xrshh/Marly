@@ -66,5 +66,12 @@ export async function fetchStatisticsOverview(
     throw new StatisticsApiError(message, response.status, details);
   }
 
+  if (!data || typeof data !== 'object' || Array.isArray(data)) {
+    throw new StatisticsApiError(
+      'Received an unexpected or empty response from the server.',
+      response.status || 502
+    );
+  }
+
   return data as StatisticsOverviewResponse;
 }

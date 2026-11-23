@@ -53,6 +53,13 @@ async function requestJson<T>(url: string, token: string, init?: RequestInit): P
     throw new ProjectsGoalsApiError(message, response.status, details);
   }
 
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+    throw new ProjectsGoalsApiError(
+      'Received an unexpected or empty response from the server.',
+      response.status || 502
+    );
+  }
+
   return payload as T;
 }
 

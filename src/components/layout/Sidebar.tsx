@@ -68,7 +68,7 @@ const PRIMARY_NAV_ITEMS: NavItem[] = [
     subtitle: 'AI clarity layer',
     icon: <BrainCircuit className="h-4 w-4" />,
     accentClass: 'text-[#8C82E8]',
-    phaseNote: 'Phase 11',
+    phaseNote: 'Phase 10',
   },
   {
     id: 'statistics',

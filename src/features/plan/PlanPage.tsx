@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   LogIn,
   Pencil,
@@ -24,6 +24,10 @@ import { PlanCalendarView } from './PlanCalendarView';
 import { PlanGoalsView } from './PlanGoalsView';
 import { PlanProjectsView } from './PlanProjectsView';
 import { cn } from '../../lib/cn';
+import {
+  parsePositiveIdQueryParam,
+  useTemporaryEntityHighlight,
+} from '../../lib/useHighlightTarget';
 import { PlanSubTab } from '../../types/marly';
 import {
   formatTaskDueLabel,
@@ -39,8 +43,11 @@ import {
 
 interface PlanPageProps {
   activeTab: PlanSubTab;
+  search?: string;
   onNavigate: (path: string) => void;
 }
+
+const TASK_HIGHLIGHT_PARAMS = ['highlight'];
 
 const PLAN_TABS: Array<{ value: PlanSubTab; label: string; href: string }> = [
   { value: 'tasks', label: 'Tasks', href: '/plan/tasks' },
@@ -56,7 +63,7 @@ const PRIORITY_TONES: Record<TaskPriority, string> = {
   urgent: 'text-[#E59585]',
 };
 
-export function PlanPage({ activeTab, onNavigate }: PlanPageProps) {
+export function PlanPage({ activeTab, search = '', onNavigate }: PlanPageProps) {
   const {
     isAuthenticated,
     isAuthLoading,
@@ -119,6 +126,35 @@ export function PlanPage({ activeTab, onNavigate }: PlanPageProps) {
     setPriorityFilter('all');
     setLocalSearch('');
   };
+
+  const highlightTaskId = useMemo(
+    () => (activeTab === 'tasks' ? parsePositiveIdQueryParam(search, 'highlight') : null),
+    [activeTab, search]
+  );
+
+  const targetTask = useMemo(
+    () => (highlightTaskId !== null ? tasks.find((t) => t.id === highlightTaskId) ?? null : null),
+    [highlightTaskId, tasks]
+  );
+
+  useEffect(() => {
+    if (activeTab !== 'tasks' || isLoading || !targetTask) return;
+    const isVisible = filteredTasks.some((t) => t.id === targetTask.id);
+    if (!isVisible) {
+      setStatusFilter('all');
+      setCategoryFilter('all');
+      setPriorityFilter('all');
+      setLocalSearch('');
+    }
+  }, [activeTab, isLoading, targetTask, filteredTasks]);
+
+  const activeHighlightTaskId = useTemporaryEntityHighlight({
+    targetId: highlightTaskId,
+    paramNamesToStrip: TASK_HIGHLIGHT_PARAMS,
+    isReady: activeTab === 'tasks' && !isLoading,
+    entityExists: Boolean(targetTask),
+    selectorPrefix: 'task',
+  });
 
   const completedCount = tasks.filter((t) => t.status === 'completed').length;
 
@@ -282,11 +318,17 @@ export function PlanPage({ activeTab, onNavigate }: PlanPageProps) {
                     const completed = task.status === 'completed';
                     const overdue = isTaskOverdue(task);
                     const isConfirmingDelete = pendingDeleteId === task.id;
+                    const isHighlighted = activeHighlightTaskId === task.id;
 
                     return (
                       <div
                         key={task.id}
-                        className="flex flex-col justify-between gap-3 px-5 py-3.5 transition-colors hover:bg-white/[0.025] lg:flex-row lg:items-center"
+                        data-think-target={`task-${task.id}`}
+                        className={cn(
+                          'flex flex-col justify-between gap-3 px-5 py-3.5 transition-all duration-300 hover:bg-white/[0.025] lg:flex-row lg:items-center',
+                          isHighlighted &&
+                            'bg-[#E59585]/[0.12] ring-1 ring-inset ring-[#E59585]/65'
+                        )}
                       >
                         <div className="flex items-start gap-3 min-w-0 flex-1">
                           <div className="pt-0.5">
@@ -427,11 +469,11 @@ export function PlanPage({ activeTab, onNavigate }: PlanPageProps) {
         </>
       )}
 
-      {activeTab === 'calendar' && <PlanCalendarView />}
+      {activeTab === 'calendar' && <PlanCalendarView search={search} />}
 
-      {activeTab === 'projects' && <PlanProjectsView />}
+      {activeTab === 'projects' && <PlanProjectsView search={search} />}
 
-      {activeTab === 'goals' && <PlanGoalsView />}
+      {activeTab === 'goals' && <PlanGoalsView search={search} />}
     </div>
   );
 }

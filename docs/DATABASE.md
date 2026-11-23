@@ -1,6 +1,6 @@
 # Marly — Database Architecture & Schema Blueprint
 
-> **Phase Status:** Phase 9 active (`users` with `timezone`, `tasks`, `calendar_events`, `goals`, `goal_milestones`, `projects`, `project_milestones`, `habits`, `habit_schedules`, `habit_logs`, `workout_sessions`, `routines`, `routine_steps`, and `routine_logs` implemented in PostgreSQL via Drizzle ORM; Phase 9 Statistics aggregates dynamically over existing tables with no new statistics-cache tables; AI tables remain blueprint targets for Phase 11).
+> **Phase Status:** Phase 10C.2 active (`users` with `timezone`, `tasks`, `calendar_events`, `goals`, `goal_milestones`, `projects`, `project_milestones`, `habits`, `habit_schedules`, `habit_logs`, `workout_sessions`, `routines`, `routine_steps`, `routine_logs`, `ai_conversations`, `ai_messages`, and `ai_action_records` implemented in PostgreSQL via Drizzle ORM; 10C.2 stores server-verified `references`, `evidence`, `context`, `insufficientContext`, and `uncertaintyNote` inside `ai_messages.response_meta` JSONB with zero DDL migrations; UI enhancements `10C.3`, voice `10D`, and polish `10E` remain deferred).
 
 ---
 
@@ -46,9 +46,9 @@ users
  ├──< routines (time_of_day, preferred_time, schedule_type, weekdays_mask, status)
  │     ├──< routine_steps (title, duration_minutes, sort_order)
  │     └──< routine_logs (local_date, completed_step_ids, steps_snapshot, completed_steps_snapshot, status)
- └──< ai_conversations (Phase 11)
-       ├──< ai_messages
-       └──< ai_action_records (proposed -> approved | rejected -> executed)
+ └──< ai_conversations (Phase 10A)
+       ├──< ai_messages (bounded Gemini history + quota index)
+       └──< ai_action_records (10A schema foundation; 10B approval workflow)
 ```
 
 ---
@@ -62,7 +62,10 @@ users
 - **Phase 7 (Implemented):** Monthly Habit Calendar, Weekly Habit Matrix, and Yearly Activity Heatmap views backed by bounded range queries over `habit_logs`, preserving `habit_schedules.updated_at` on non-schedule habit updates and distinguishing partial measurable logs, unscheduled rest days, and unrecorded pre-edit periods.
 - **Phase 8 (Implemented):** `workout_sessions`, `routines`, `routine_steps`, `routine_logs` (with unique `(routine_id, local_date)` index and JSONB step snapshots preserving execution history across later step edits)
 - **Phase 9 (Implemented — No Schema Changes):** Server-side cross-pillar analytics (`src/db/statistics.ts`) computed directly over existing PostgreSQL tables using persisted `users.timezone`, shared `src/lib/progress.ts`, `src/lib/habitVisualizations.ts`, and immutable `routine_logs` snapshots
-- **Phase 11:** `ai_conversations`, `ai_messages`, `ai_action_records`
+- **Phase 10A (Implemented):** `ai_conversations`, `ai_messages` (with `(conversation_id, created_at, id)` history index and `(user_id, role, created_at)` quota index), and `ai_action_records` schema foundation
+- **Phase 10B (Implemented):** Extended `ai_action_records` (`edited_payload`, `error_message`, `executed_at`) supporting atomic proposal approval, user edits, rejection, and domain service execution
+- **Phase 10C.1 (Implemented — No Schema Changes):** Read-only `userId`-scoped cross-pillar context slice queries (`src/lib/thinkContext/slices/*`) reading tasks, calendar events (date-only all-day vs. local-midnight bounded timed windows), projects/goals/milestones, active habits with 35-day evaluation windows (400-day streak log lookup), workouts, routines (using immutable `routine_logs` snapshots), and `getUserStatisticsOverview`, alongside `listFullOwnedActionRefSets` (`src/db/thinkActions.ts`) preserving complete uncapped ownership validation for 10B action proposals
+- **Phase 10C.2 (Implemented — No DDL Changes):** Extended `ai_messages.response_meta` TypeScript JSONB structure (`ThinkMessageMeta`) with `mode: 'context_grounded'`, server-canonicalized `references`, verified `evidence`, `context` metadata (consulted/degraded/truncated domains, window, timezone), `insufficientContext`, and `uncertaintyNote`, plus `getLatestAssistantPreviousTurnMeta` (`src/db/think.ts`) for strictly `userId`+`conversationId` scoped multi-turn continuity
 
 ---
 
@@ -127,3 +130,27 @@ users
    - Later step renames, additions, reorders, or deletions never retroactively rewrite or delete existing historical `routine_logs` rows.
 4. **Archival vs. Permanent Deletion:**
    - Archiving sets `routines.status = 'archived'` and `archived_at`, blocking new execution logs while keeping historical records intact. Permanent deletion cascades to `routine_steps` and `routine_logs` only after an explicit destructive confirmation warning recommending Archive instead.
+
+---
+
+## 9. Phase 10A THINK Persistence & Quota Integrity (`src/db/think.ts`, `src/lib/thinkRateLimit.ts`)
+
+1. **Strict Cascade Ownership:** `ai_conversations`, `ai_messages`, and `ai_action_records` all carry `user_id` (`ON DELETE CASCADE`) and conversation/message cascade FKs, verified against `req.dbUser.id` on every endpoint.
+2. **Quota Consistency Without Failed-Turn Penalties:**
+   - Failed Gemini requests never insert `user` or `assistant` rows into `ai_messages`.
+   - Rolling 24-hour message quotas count `role = 'assistant'` rows via `ai_messages_user_role_created_idx` inside a `pg_advisory_xact_lock` transaction during turn persistence, preventing concurrent quota bypasses across requests or server restarts.
+3. **Bounded History Retrieval:** Preparing prompts for Gemini fetches at most the most recent 12 persisted messages via `ai_messages_conv_created_idx` before ordering chronologically.
+
+---
+
+## 10. Phase 10B THINK Action Engine Persistence & Execution Integrity (`src/db/thinkActions.ts`)
+
+1. **`ai_action_records` Audit & Edit Separation:**
+   - Preserves the original AI-proposed `payload` unmodified alongside optional `edited_payload` (recorded when the user edits an action before approval), `execution_result` (`entityType`, `entityId`, `parentId`, `label`, `targetRoute`), `error_message`, `executed_at`, and `resolved_at`.
+2. **Valid Lifecycle Transitions & Atomic Claiming:**
+   - Enforces lifecycle states `'proposed' | 'approved' | 'rejected' | 'executed' | 'failed'`.
+   - Validation of `edited_payload` runs before claiming `'approved'` so invalid user edits (`400`) keep the proposal editable (`'proposed'` or `'failed'`).
+   - Approval performs an atomic conditional `UPDATE ... WHERE status IN ('proposed', 'failed') RETURNING *` to `'approved'` before domain execution, ensuring concurrent double-clicks receive `409 Conflict` and never execute twice. Rejections transition atomically to `'rejected'` with zero domain mutations, and already `'executed'` or `'rejected'` records cannot transition again.
+3. **Atomicity & Honest Recovery Limitation:**
+   - Each of the 8 whitelisted domain executors runs either as an atomic single SQL write or inside its own `db.transaction` (`createUserHabit` + `habit_schedules`, `createUserRoutine` + `routine_steps`), so failed domain executions leave zero partial domain rows and transition cleanly to `'failed'` (permitting safe user edit/retry). In the rare event of a process crash strictly between a committed domain write and the final status update on `ai_action_records`, the record remains `'approved'` (`409` blocked) rather than silently re-executing.
+

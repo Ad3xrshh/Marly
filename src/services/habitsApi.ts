@@ -50,6 +50,13 @@ async function requestJson<T>(url: string, token: string, init?: RequestInit): P
     throw new HabitsApiError(message, response.status, details);
   }
 
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+    throw new HabitsApiError(
+      'Received an unexpected or empty response from the server.',
+      response.status || 502
+    );
+  }
+
   return payload as T;
 }
 

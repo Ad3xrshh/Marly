@@ -11,6 +11,7 @@ import projectsRouter from './src/routes/projects.ts';
 import routinesRouter from './src/routes/routines.ts';
 import statisticsRouter from './src/routes/statistics.ts';
 import tasksRouter from './src/routes/tasks.ts';
+import thinkRouter from './src/routes/think.ts';
 import workoutsRouter from './src/routes/workouts.ts';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -46,6 +47,7 @@ async function startServer() {
   app.use('/api/workouts', workoutsRouter);
   app.use('/api/routines', routinesRouter);
   app.use('/api/statistics', statisticsRouter);
+  app.use('/api/think', thinkRouter);
 
   app.use('/api', (_req: Request, res: Response) => {
     res.status(404).json({ error: 'API endpoint not found' });

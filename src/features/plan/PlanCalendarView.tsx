@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Calendar as CalendarIcon,
   CheckCircle2,
@@ -20,6 +20,10 @@ import {
 } from '../../components/ui';
 import { usePlanCalendarData } from '../../hooks/useMarlyData';
 import { cn } from '../../lib/cn';
+import {
+  parsePositiveIdQueryParam,
+  useTemporaryEntityHighlight,
+} from '../../lib/useHighlightTarget';
 import {
   addDaysLocal,
   addMonthsLocal,
@@ -56,7 +60,9 @@ const VIEW_TABS: Array<{ value: CalendarViewMode; label: string }> = [
   { value: 'day', label: 'Day' },
 ];
 
-export function PlanCalendarView() {
+const EVENT_ID_QUERY_PARAMS = ['eventId'];
+
+export function PlanCalendarView({ search = '' }: { search?: string }) {
   const {
     isAuthenticated,
     isAuthLoading,
@@ -80,6 +86,37 @@ export function PlanCalendarView() {
   const [taskVisibility, setTaskVisibility] = useState<CalendarTaskVisibility>('all');
   const [categoryFilter, setCategoryFilter] = useState<'All' | TaskCategory>('All');
   const [showFullDayHours, setShowFullDayHours] = useState(false);
+
+  const targetEventId = useMemo(() => parsePositiveIdQueryParam(search, 'eventId'), [search]);
+  const targetEvent = useMemo(
+    () => (targetEventId !== null ? events.find((e) => e.id === targetEventId) ?? null : null),
+    [targetEventId, events]
+  );
+
+  useEffect(() => {
+    if (isLoading || !targetEvent) return;
+    if (categoryFilter !== 'All' && targetEvent.category !== categoryFilter) {
+      setCategoryFilter('All');
+    }
+    const eventIso = targetEvent.allDay
+      ? (targetEvent.startDate ?? todayIso)
+      : targetEvent.startAt
+        ? toLocalDateString(new Date(targetEvent.startAt))
+        : todayIso;
+    setAnchorDate(parseLocalDate(eventIso));
+    setSelectedDateIso(eventIso);
+    if (viewMode === 'week') {
+      setViewMode('month');
+    }
+  }, [isLoading, targetEvent, categoryFilter, todayIso, viewMode]);
+
+  const activeHighlightEventId = useTemporaryEntityHighlight({
+    targetId: targetEventId,
+    paramNamesToStrip: EVENT_ID_QUERY_PARAMS,
+    isReady: !isLoading,
+    entityExists: Boolean(targetEvent),
+    selectorPrefix: 'event',
+  });
 
   const visibleEvents = useMemo(() => {
     if (categoryFilter === 'All') return events;
@@ -457,7 +494,12 @@ export function PlanCalendarView() {
                                   e.stopPropagation();
                                   openEditEvent(entry.item);
                                 }}
-                                className="flex w-full items-center gap-1 rounded-md bg-[#A9C8E9]/14 px-1.5 py-0.5 text-left text-[11px] font-medium text-[#A9C8E9] transition-colors hover:bg-[#A9C8E9]/24 cursor-pointer"
+                                className={cn(
+                                  'flex w-full items-center gap-1 rounded-md px-1.5 py-0.5 text-left text-[11px] font-medium text-[#A9C8E9] transition-colors cursor-pointer',
+                                  activeHighlightEventId === entry.item.id
+                                    ? 'bg-[#A9C8E9]/32 ring-1 ring-[#A9C8E9]/80'
+                                    : 'bg-[#A9C8E9]/14 hover:bg-[#A9C8E9]/24'
+                                )}
                               >
                                 <span className="font-mono text-[10px] shrink-0 opacity-85">
                                   {entry.item.allDay
@@ -515,6 +557,7 @@ export function PlanCalendarView() {
                 isoDate={selectedDateIso}
                 events={selectedDayEvents}
                 tasks={selectedDayTasks}
+                highlightedEventId={activeHighlightEventId}
                 onOpenDayView={() => setViewMode('day')}
                 onCreateEvent={() => openCreateEvent({ defaultDate: selectedDateIso })}
                 onEditEvent={openEditEvent}
@@ -924,6 +967,7 @@ export function PlanCalendarView() {
                 isoDate={selectedDateIso}
                 events={selectedDayEvents}
                 tasks={selectedDayTasks}
+                highlightedEventId={activeHighlightEventId}
                 onCreateEvent={() => openCreateEvent({ defaultDate: selectedDateIso })}
                 onEditEvent={openEditEvent}
                 onEditTask={openEditTask}
@@ -941,6 +985,7 @@ interface SelectedDayAgendaPanelProps {
   isoDate: string;
   events: CalendarEvent[];
   tasks: Task[];
+  highlightedEventId?: number | null;
   onOpenDayView?: () => void;
   onCreateEvent: () => void;
   onEditEvent: (event: CalendarEvent) => void;
@@ -952,6 +997,7 @@ function SelectedDayAgendaPanel({
   isoDate,
   events,
   tasks,
+  highlightedEventId,
   onOpenDayView,
   onCreateEvent,
   onEditEvent,
@@ -1007,27 +1053,36 @@ function SelectedDayAgendaPanel({
           />
         ) : (
           <div className="space-y-2">
-            {events.map((event) => (
-              <button
-                key={event.id}
-                type="button"
-                onClick={() => onEditEvent(event)}
-                className="w-full rounded-xl border border-[#A9C8E9]/25 bg-[#292929] p-3 text-left transition-colors hover:border-[#A9C8E9]/50 hover:bg-[#303030] cursor-pointer"
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="truncate text-sm font-semibold text-[#F2F2F2]">
-                    {event.title}
-                  </span>
-                  <span className="font-mono text-[11px] text-[#A9C8E9] shrink-0 tabular-nums">
-                    {formatEventTimeSummary(event, isoDate)}
-                  </span>
-                </div>
-                <p className="mt-1 text-[11px] text-[#A3A3A8]">
-                  {event.category}
-                  {event.description ? ` · ${event.description}` : ''}
-                </p>
-              </button>
-            ))}
+            {events.map((event) => {
+              const isHighlighted = highlightedEventId === event.id;
+              return (
+                <button
+                  key={event.id}
+                  type="button"
+                  data-think-target={`event-${event.id}`}
+                  onClick={() => onEditEvent(event)}
+                  className={cn(
+                    'w-full rounded-xl border p-3 text-left transition-all duration-300 cursor-pointer',
+                    isHighlighted
+                      ? 'border-[#A9C8E9]/75 bg-[#A9C8E9]/[0.16] ring-1 ring-[#A9C8E9]/65'
+                      : 'border-[#A9C8E9]/25 bg-[#292929] hover:border-[#A9C8E9]/50 hover:bg-[#303030]'
+                  )}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="truncate text-sm font-semibold text-[#F2F2F2]">
+                      {event.title}
+                    </span>
+                    <span className="font-mono text-[11px] text-[#A9C8E9] shrink-0 tabular-nums">
+                      {formatEventTimeSummary(event, isoDate)}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-[11px] text-[#A3A3A8]">
+                    {event.category}
+                    {event.description ? ` · ${event.description}` : ''}
+                  </p>
+                </button>
+              );
+            })}
           </div>
         )}
       </section>

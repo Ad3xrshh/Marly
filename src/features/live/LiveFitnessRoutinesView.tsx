@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   AlertTriangle,
   Archive,
@@ -32,6 +32,10 @@ import {
 import { useFitnessAndRoutinesData } from '../../hooks/useMarlyData';
 import { cn } from '../../lib/cn';
 import {
+  parsePositiveIdQueryParam,
+  useTemporaryEntityHighlight,
+} from '../../lib/useHighlightTarget';
+import {
   formatDurationMinutes,
   WORKOUT_ACTIVITY_TYPES,
   type Routine,
@@ -44,7 +48,10 @@ import {
 type WorkoutFilter = 'All' | WorkoutActivityType;
 type RoutineStatusTab = 'active' | 'archived';
 
-export function LiveFitnessRoutinesView() {
+const WORKOUT_ID_PARAMS = ['workoutId'];
+const ROUTINE_ID_PARAMS = ['routineId'];
+
+export function LiveFitnessRoutinesView({ search = '' }: { search?: string }) {
   const {
     isAuthenticated,
     isAuthLoading,
@@ -98,6 +105,48 @@ export function LiveFitnessRoutinesView() {
   const [historyLoadingId, setHistoryLoadingId] = useState<number | null>(null);
 
   const [deleteConfirmRoutine, setDeleteConfirmRoutine] = useState<Routine | null>(null);
+
+  const targetWorkoutId = useMemo(() => parsePositiveIdQueryParam(search, 'workoutId'), [search]);
+  const targetWorkout = useMemo(
+    () => (targetWorkoutId !== null ? workouts.find((w) => w.id === targetWorkoutId) ?? null : null),
+    [targetWorkoutId, workouts]
+  );
+
+  const targetRoutineId = useMemo(() => parsePositiveIdQueryParam(search, 'routineId'), [search]);
+  const targetRoutine = useMemo(
+    () => (targetRoutineId !== null ? routines.find((r) => r.id === targetRoutineId) ?? null : null),
+    [targetRoutineId, routines]
+  );
+
+  useEffect(() => {
+    if (isLoading || !targetWorkout) return;
+    if (workoutFilter !== 'All' && targetWorkout.activityType !== workoutFilter) {
+      setWorkoutFilter('All');
+    }
+  }, [isLoading, targetWorkout, workoutFilter]);
+
+  useEffect(() => {
+    if (isLoading || !targetRoutine) return;
+    if (targetRoutine.status !== routineTab) {
+      setRoutineTab(targetRoutine.status === 'archived' ? 'archived' : 'active');
+    }
+  }, [isLoading, targetRoutine, routineTab]);
+
+  const activeHighlightWorkoutId = useTemporaryEntityHighlight({
+    targetId: targetWorkoutId,
+    paramNamesToStrip: WORKOUT_ID_PARAMS,
+    isReady: !isLoading,
+    entityExists: Boolean(targetWorkout),
+    selectorPrefix: 'workout',
+  });
+
+  const activeHighlightRoutineId = useTemporaryEntityHighlight({
+    targetId: targetRoutineId,
+    paramNamesToStrip: ROUTINE_ID_PARAMS,
+    isReady: !isLoading,
+    entityExists: Boolean(targetRoutine),
+    selectorPrefix: 'routine',
+  });
 
   const normalizedQuery = searchQuery.trim().toLowerCase();
 
@@ -435,10 +484,16 @@ export function LiveFitnessRoutinesView() {
             <div className="divide-y divide-white/[0.07]">
               {filteredWorkouts.map((workout) => {
                 const isConfirming = confirmDeleteWorkoutId === workout.id;
+                const isHighlighted = activeHighlightWorkoutId === workout.id;
                 return (
                   <div
                     key={workout.id}
-                    className="space-y-2 py-3.5 first:pt-1 last:pb-0"
+                    data-think-target={`workout-${workout.id}`}
+                    className={cn(
+                      'space-y-2 py-3.5 first:pt-1 last:pb-0 transition-all duration-300',
+                      isHighlighted &&
+                        'rounded-xl bg-[#F19A50]/[0.12] px-3 ring-1 ring-[#F19A50]/65'
+                    )}
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
@@ -588,11 +643,18 @@ export function LiveFitnessRoutinesView() {
                 const stepsOpen = managingStepsRoutineId === routine.id;
                 const historyOpen = expandedHistoryId === routine.id;
                 const historyLogs = historyByRoutine[routine.id] ?? [];
+                const isHighlighted = activeHighlightRoutineId === routine.id;
 
                 return (
                   <div
                     key={routine.id}
-                    className="space-y-3 rounded-xl border border-white/[0.07] bg-[#262626] p-4"
+                    data-think-target={`routine-${routine.id}`}
+                    className={cn(
+                      'space-y-3 rounded-xl border p-4 transition-all duration-300',
+                      isHighlighted
+                        ? 'border-[#96D2C5]/75 bg-[#96D2C5]/[0.1] ring-1 ring-[#96D2C5]/60'
+                        : 'border-white/[0.07] bg-[#262626]'
+                    )}
                   >
                     {/* Routine Header */}
                     <div className="flex items-start justify-between gap-3">

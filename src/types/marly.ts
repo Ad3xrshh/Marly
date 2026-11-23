@@ -5,6 +5,7 @@ export type LiveSubTab = 'calendar' | 'matrix' | 'heatmap' | 'habits' | 'fitness
 
 export interface RouteState {
   path: string;
+  search: string;
   section: PrimaryRoute;
   planTab: PlanSubTab;
   liveTab: LiveSubTab;

@@ -25,6 +25,7 @@ import {
   computeProjectProgress,
   type ProjectProgressSummary,
 } from '../lib/progress.ts';
+import { getUtcInstantForLocalMidnight, resolveEffectiveTimeZone } from '../lib/timezone.ts';
 import type { Habit, HabitLog } from '../types/habit.ts';
 import type {
   StatisticsGoalItem,
@@ -277,38 +278,6 @@ function buildTimeBuckets(
   };
 }
 
-function getUtcInstantForLocalMidnight(localDate: string, timeZone: string): number {
-  const safeZone = isValidIanaTimeZone(timeZone) ? timeZone : 'UTC';
-  const { year, month, day } = parseCalendarDateFromStr(localDate);
-  // Start with UTC midnight guess, then refine via timezone offset
-  let estimate = Date.UTC(year, month - 1, day, 0, 0, 0);
-  for (let pass = 0; pass < 2; pass += 1) {
-    const parts = new Intl.DateTimeFormat('en-CA', {
-      timeZone: safeZone,
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false,
-    }).formatToParts(new Date(estimate));
-
-    const y = Number(parts.find((p) => p.type === 'year')?.value ?? year);
-    const m = Number(parts.find((p) => p.type === 'month')?.value ?? month);
-    const d = Number(parts.find((p) => p.type === 'day')?.value ?? day);
-    const rawHour = Number(parts.find((p) => p.type === 'hour')?.value ?? 0);
-    const h = rawHour === 24 ? 0 : rawHour;
-    const min = Number(parts.find((p) => p.type === 'minute')?.value ?? 0);
-    const sec = Number(parts.find((p) => p.type === 'second')?.value ?? 0);
-
-    const renderedAsUtc = Date.UTC(y, m - 1, d, h, min, sec);
-    const targetAsUtc = Date.UTC(year, month - 1, day, 0, 0, 0);
-    estimate += targetAsUtc - renderedAsUtc;
-  }
-  return estimate;
-}
-
 function evaluateDailyWeekdayHabitsInRange(params: {
   habitsList: Habit[];
   logsByKey: Map<string, HabitLog>;
@@ -431,9 +400,8 @@ export async function getUserStatisticsOverview(params: {
   userTimeZone: string | null | undefined;
   query: StatisticsQueryValidated;
 }): Promise<StatisticsOverviewResponse> {
-  const effectiveTimezone =
-    userTimeZoneOrFallback(params.userTimeZone);
-  const timezoneInitialized = Boolean(params.userTimeZone);
+  const { effectiveTimeZone: effectiveTimezone, timezoneInitialized } =
+    resolveEffectiveTimeZone(params.userTimeZone);
   const todayLocalDate = getTodayLocalDateForTimeZone(effectiveTimezone);
   const period = resolveStatisticsPeriod({
     query: params.query,
@@ -1549,8 +1517,4 @@ export async function getUserStatisticsOverview(params: {
       },
     },
   };
-}
-
-function userTimeZoneOrFallback(tz: string | null | undefined): string {
-  return tz && isValidIanaTimeZone(tz) ? tz : 'UTC';
 }

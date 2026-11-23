@@ -9,6 +9,7 @@ import { WeeklyHabitMatrix } from './WeeklyHabitMatrix';
 
 interface LivePageProps {
   activeTab: LiveSubTab;
+  search?: string;
   onNavigate: (path: string) => void;
 }
 
@@ -20,7 +21,7 @@ const LIVE_TABS: Array<{ value: LiveSubTab; label: string; href: string }> = [
   { value: 'fitness', label: 'Fitness & Routines', href: '/live/fitness' },
 ];
 
-export function LivePage({ activeTab, onNavigate }: LivePageProps) {
+export function LivePage({ activeTab, search = '', onNavigate }: LivePageProps) {
   return (
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
@@ -40,11 +41,11 @@ export function LivePage({ activeTab, onNavigate }: LivePageProps) {
         />
       </div>
 
-      {activeTab === 'habits' && <LiveHabitsView />}
+      {activeTab === 'habits' && <LiveHabitsView search={search} />}
       {activeTab === 'calendar' && <MonthlyHabitCalendar />}
       {activeTab === 'matrix' && <WeeklyHabitMatrix />}
       {activeTab === 'heatmap' && <ActivityHeatmap />}
-      {activeTab === 'fitness' && <LiveFitnessRoutinesView />}
+      {activeTab === 'fitness' && <LiveFitnessRoutinesView search={search} />}
     </div>
   );
 }

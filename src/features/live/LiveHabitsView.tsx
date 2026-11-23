@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Archive,
   ArchiveRestore,
@@ -24,6 +24,10 @@ import {
 import { useHabitsManagementData } from '../../hooks/useMarlyData';
 import { cn } from '../../lib/cn';
 import {
+  parsePositiveIdQueryParam,
+  useTemporaryEntityHighlight,
+} from '../../lib/useHighlightTarget';
+import {
   addDaysToLocalDate,
   computeLogProgressPercent,
   getDayOfWeekFromLocalDate,
@@ -41,7 +45,9 @@ import { TASK_CATEGORY_OPTIONS, type TaskCategory } from '../../types/task';
 type HabitStatusTab = 'active' | 'archived';
 type HabitCategoryFilter = 'All' | TaskCategory;
 
-export function LiveHabitsView() {
+const HABIT_ID_PARAMS = ['habitId'];
+
+export function LiveHabitsView({ search = '' }: { search?: string }) {
   const {
     isAuthenticated,
     isAuthLoading,
@@ -72,6 +78,30 @@ export function LiveHabitsView() {
   const [historyLoadingId, setHistoryLoadingId] = useState<number | null>(null);
   const [historyCustomDate, setHistoryCustomDate] = useState<string>('');
   const [historyCustomValue, setHistoryCustomValue] = useState<string>('');
+
+  const targetHabitId = useMemo(() => parsePositiveIdQueryParam(search, 'habitId'), [search]);
+  const targetHabit = useMemo(
+    () => (targetHabitId !== null ? habits.find((h) => h.id === targetHabitId) ?? null : null),
+    [targetHabitId, habits]
+  );
+
+  useEffect(() => {
+    if (isLoading || !targetHabit) return;
+    if (targetHabit.status !== statusTab) {
+      setStatusTab(targetHabit.status === 'archived' ? 'archived' : 'active');
+    }
+    if (categoryFilter !== 'All' && targetHabit.category !== categoryFilter) {
+      setCategoryFilter('All');
+    }
+  }, [isLoading, targetHabit, statusTab, categoryFilter]);
+
+  const activeHighlightHabitId = useTemporaryEntityHighlight({
+    targetId: targetHabitId,
+    paramNamesToStrip: HABIT_ID_PARAMS,
+    isReady: !isLoading,
+    entityExists: Boolean(targetHabit),
+    selectorPrefix: 'habit',
+  });
 
   const normalizedQuery = searchQuery.trim().toLowerCase();
 
@@ -313,9 +343,19 @@ export function LiveHabitsView() {
             const historyOpen = expandedHistoryId === habit.id;
             const historyLogs = historyLogsByHabit[habit.id] ?? [];
             const historyMap = new Map(historyLogs.map((l) => [l.localDate, l]));
+            const isHighlighted = activeHighlightHabitId === habit.id;
 
             return (
-              <Card key={habit.id} tone="surface" padding="md" className="space-y-4">
+              <Card
+                key={habit.id}
+                tone="surface"
+                padding="md"
+                className={cn(
+                  'space-y-4 transition-all duration-300',
+                  isHighlighted && 'border-[#96D2C5]/75 bg-[#96D2C5]/[0.08] ring-1 ring-[#96D2C5]/60'
+                )}
+              >
+                <div data-think-target={`habit-${habit.id}`} />
                 {/* Header */}
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-start gap-3 min-w-0">

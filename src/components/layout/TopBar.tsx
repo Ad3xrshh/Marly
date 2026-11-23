@@ -18,7 +18,7 @@ const SECTION_META: Record<PrimaryRoute, { title: string; context: string }> = {
   home: { title: 'Home', context: 'Daily Overview' },
   plan: { title: 'Plan', context: 'Tasks, Calendar, Projects & Goals' },
   live: { title: 'Live', context: 'Habits, Streaks, Matrix & Heatmap · Preview' },
-  think: { title: 'Think', context: 'Contextual AI Clarity Layer · Phase 11' },
+  think: { title: 'Think', context: 'AI Clarity Workspace · Phase 10A' },
   statistics: { title: 'Statistics', context: 'Unified PLAN + LIVE Analytics · Phase 9' },
   settings: { title: 'Settings', context: 'Account, Preferences & UI Kit' },
 };

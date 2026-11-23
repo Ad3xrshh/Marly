@@ -29,6 +29,10 @@ import {
 import { useProjectsAndGoalsData, useTasksOverviewData } from '../../hooks/useMarlyData';
 import { cn } from '../../lib/cn';
 import {
+  parsePositiveIdQueryParam,
+  useTemporaryEntityHighlight,
+} from '../../lib/useHighlightTarget';
+import {
   getGoalStatusLabel,
   getProjectStatusLabel,
   GOAL_STATUS_OPTIONS,
@@ -64,7 +68,9 @@ function getGoalModeDescription(goal: Goal): string {
   }
 }
 
-export function PlanGoalsView() {
+const GOAL_ID_PARAMS = ['goalId'];
+
+export function PlanGoalsView({ search = '' }: { search?: string }) {
   const {
     isAuthenticated,
     isAuthLoading,
@@ -142,15 +148,48 @@ export function PlanGoalsView() {
     });
   }, [goals, statusFilter, sortBy, searchQuery]);
 
+  const targetGoalId = useMemo(() => parsePositiveIdQueryParam(search, 'goalId'), [search]);
+  const targetGoal = useMemo(
+    () => (targetGoalId !== null ? goals.find((g) => g.id === targetGoalId) ?? null : null),
+    [targetGoalId, goals]
+  );
+
+  useEffect(() => {
+    if (isLoading || !targetGoal) return;
+    if (statusFilter === 'active_set' && targetGoal.status === 'archived') {
+      setStatusFilter('all');
+    } else if (statusFilter !== 'active_set' && statusFilter !== 'all' && statusFilter !== targetGoal.status) {
+      setStatusFilter('all');
+    }
+    if (searchQuery.trim().length > 0 && !filteredGoals.some((g) => g.id === targetGoal.id)) {
+      setSearchQuery('');
+    }
+    setSelectedGoalId(targetGoal.id);
+  }, [isLoading, targetGoal, statusFilter, searchQuery, filteredGoals]);
+
+  const activeHighlightGoalId = useTemporaryEntityHighlight({
+    targetId: targetGoalId,
+    paramNamesToStrip: GOAL_ID_PARAMS,
+    isReady: !isLoading,
+    entityExists: Boolean(targetGoal),
+    selectorPrefix: 'goal',
+  });
+
   useEffect(() => {
     if (filteredGoals.length === 0) {
       setSelectedGoalId(null);
       return;
     }
+    if (targetGoal && filteredGoals.some((g) => g.id === targetGoal.id)) {
+      if (selectedGoalId !== targetGoal.id) {
+        setSelectedGoalId(targetGoal.id);
+      }
+      return;
+    }
     if (!selectedGoalId || !filteredGoals.some((g) => g.id === selectedGoalId)) {
       setSelectedGoalId(filteredGoals[0].id);
     }
-  }, [filteredGoals, selectedGoalId]);
+  }, [filteredGoals, selectedGoalId, targetGoal]);
 
   const selectedGoal: Goal | null = useMemo(
     () => goals.find((g) => g.id === selectedGoalId) ?? null,
@@ -366,16 +405,20 @@ export function PlanGoalsView() {
           <div className="space-y-3">
             {filteredGoals.map((goal) => {
               const isSelected = selectedGoal?.id === goal.id;
+              const isHighlighted = activeHighlightGoalId === goal.id;
               return (
                 <button
                   key={goal.id}
                   type="button"
+                  data-think-target={`goal-${goal.id}`}
                   onClick={() => setSelectedGoalId(goal.id)}
                   className={cn(
-                    'w-full rounded-2xl border p-4 text-left transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E59585]',
-                    isSelected
-                      ? 'border-[#E59585]/45 bg-[#252222]'
-                      : 'border-white/[0.07] bg-[#202020] hover:border-white/[0.14] hover:bg-[#242424]'
+                    'w-full rounded-2xl border p-4 text-left transition-all duration-300 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E59585]',
+                    isHighlighted
+                      ? 'border-[#E59585]/80 bg-[#E59585]/[0.12] ring-1 ring-[#E59585]/65'
+                      : isSelected
+                        ? 'border-[#E59585]/45 bg-[#252222]'
+                        : 'border-white/[0.07] bg-[#202020] hover:border-white/[0.14] hover:bg-[#242424]'
                   )}
                 >
                   <div className="flex items-start justify-between gap-3">
@@ -420,7 +463,15 @@ export function PlanGoalsView() {
 
           {/* Right: Selected Goal Detail */}
           {selectedGoal && (
-            <Card tone="surface" padding="lg" className="space-y-6">
+            <Card
+              tone="surface"
+              padding="lg"
+              className={cn(
+                'space-y-6 transition-all duration-300',
+                activeHighlightGoalId === selectedGoal.id &&
+                  'border-[#E59585]/65 ring-1 ring-[#E59585]/45'
+              )}
+            >
               {/* Goal Header */}
               <div className="flex flex-col justify-between gap-4 border-b border-white/[0.07] pb-5 sm:flex-row sm:items-start">
                 <div className="min-w-0 space-y-2">

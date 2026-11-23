@@ -3,12 +3,35 @@ import type {
   HabitLogStatusSnapshotValue,
   HabitTrackingTypeValue,
 } from '../db/schema.ts';
+import {
+  addDaysToLocalDate,
+  formatCalendarDate,
+  formatTimestampInTimeZoneToLocalDate,
+  getDayOfWeekFromLocalDate,
+  getTodayLocalDateForTimeZone,
+  getWeekStartMonday,
+  isValidCalendarDate,
+  isValidIanaTimeZone,
+  normalizeTimeZoneOrNull,
+  parseCalendarDate,
+} from './timezone.ts';
+
+export {
+  addDaysToLocalDate,
+  formatCalendarDate,
+  formatTimestampInTimeZoneToLocalDate,
+  getDayOfWeekFromLocalDate,
+  getTodayLocalDateForTimeZone,
+  getWeekStartMonday,
+  isValidCalendarDate,
+  isValidIanaTimeZone,
+  normalizeTimeZoneOrNull,
+  parseCalendarDate,
+};
 
 export const ALL_WEEKDAYS_MASK = 127; // Bits 0..6 (Sun..Sat)
 export const WEEKDAY_SHORT_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
 export const WEEKDAY_MONDAY_FIRST_ORDER = [1, 2, 3, 4, 5, 6, 0] as const;
-
-const DATE_ONLY_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
 export interface HabitScheduleShape {
   frequencyType: HabitFrequencyTypeValue;
@@ -27,104 +50,6 @@ export interface HabitStreakSummary {
   longestStreak: number;
   weeklyCompletionsCount: number | null;
   weeklyTarget: number | null;
-}
-
-export function isValidIanaTimeZone(timeZone: string): boolean {
-  const trimmed = timeZone.trim();
-  if (!trimmed || trimmed.length > 100) return false;
-  // Reject loose fixed-offset notations if someone passes e.g. "+05:30"; require valid Intl IANA/UTC name
-  if (/^[+-]\d{2}:?\d{2}$/.test(trimmed)) return false;
-  try {
-    const formatter = new Intl.DateTimeFormat('en-US', { timeZone: trimmed });
-    const resolved = formatter.resolvedOptions().timeZone;
-    return typeof resolved === 'string' && resolved.length > 0;
-  } catch {
-    return false;
-  }
-}
-
-export function normalizeTimeZoneOrNull(timeZone: string | null | undefined): string | null {
-  if (!timeZone) return null;
-  const trimmed = timeZone.trim();
-  if (!isValidIanaTimeZone(trimmed)) return null;
-  return new Intl.DateTimeFormat('en-US', { timeZone: trimmed }).resolvedOptions().timeZone;
-}
-
-export function isValidCalendarDate(value: string): boolean {
-  if (!DATE_ONLY_REGEX.test(value)) return false;
-  const [yearStr, monthStr, dayStr] = value.split('-');
-  const year = Number(yearStr);
-  const month = Number(monthStr);
-  const day = Number(dayStr);
-  const candidate = new Date(Date.UTC(year, month - 1, day));
-  return (
-    candidate.getUTCFullYear() === year &&
-    candidate.getUTCMonth() === month - 1 &&
-    candidate.getUTCDate() === day
-  );
-}
-
-export function parseCalendarDate(value: string): { year: number; month: number; day: number } {
-  const [yearStr, monthStr, dayStr] = value.split('-');
-  return {
-    year: Number(yearStr),
-    month: Number(monthStr),
-    day: Number(dayStr),
-  };
-}
-
-export function formatCalendarDate(year: number, month: number, day: number): string {
-  return `${String(year).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-}
-
-export function addDaysToLocalDate(localDate: string, deltaDays: number): string {
-  const { year, month, day } = parseCalendarDate(localDate);
-  const next = new Date(Date.UTC(year, month - 1, day + deltaDays));
-  return formatCalendarDate(
-    next.getUTCFullYear(),
-    next.getUTCMonth() + 1,
-    next.getUTCDate()
-  );
-}
-
-/**
- * Returns 0 = Sunday .. 6 = Saturday using pure UTC calendar math on YYYY-MM-DD.
- */
-export function getDayOfWeekFromLocalDate(localDate: string): number {
-  const { year, month, day } = parseCalendarDate(localDate);
-  return new Date(Date.UTC(year, month - 1, day)).getUTCDay();
-}
-
-/**
- * Returns Monday (YYYY-MM-DD) of the Monday-Sunday week containing `localDate`.
- */
-export function getWeekStartMonday(localDate: string): string {
-  const dow = getDayOfWeekFromLocalDate(localDate); // 0=Sun..6=Sat
-  const offsetFromMonday = (dow + 6) % 7;
-  return addDaysToLocalDate(localDate, -offsetFromMonday);
-}
-
-export function formatTimestampInTimeZoneToLocalDate(date: Date, timeZone: string): string {
-  const safeZone = isValidIanaTimeZone(timeZone) ? timeZone : 'UTC';
-  const parts = new Intl.DateTimeFormat('en-CA', {
-    timeZone: safeZone,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).formatToParts(date);
-
-  const year = parts.find((p) => p.type === 'year')?.value ?? '1970';
-  const month = parts.find((p) => p.type === 'month')?.value ?? '01';
-  const day = parts.find((p) => p.type === 'day')?.value ?? '01';
-  return `${year}-${month}-${day}`;
-}
-
-export function getTodayLocalDateForTimeZone(
-  timeZone: string | null | undefined,
-  now: Date = new Date()
-): string {
-  const effectiveZone = timeZone && isValidIanaTimeZone(timeZone) ? timeZone : 'UTC';
-  return formatTimestampInTimeZoneToLocalDate(now, effectiveZone);
 }
 
 export function weekdaysToMask(weekdays: number[]): number {

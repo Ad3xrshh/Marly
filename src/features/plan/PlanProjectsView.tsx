@@ -31,6 +31,10 @@ import {
 import { useProjectsAndGoalsData, useTasksOverviewData } from '../../hooks/useMarlyData';
 import { cn } from '../../lib/cn';
 import {
+  parsePositiveIdQueryParam,
+  useTemporaryEntityHighlight,
+} from '../../lib/useHighlightTarget';
+import {
   getProjectStatusLabel,
   PROJECT_STATUS_OPTIONS,
   type Project,
@@ -70,7 +74,9 @@ const PRIORITY_TONE: Record<TaskPriority, string> = {
   urgent: 'text-[#E59585]',
 };
 
-export function PlanProjectsView() {
+const PROJECT_ID_PARAMS = ['projectId'];
+
+export function PlanProjectsView({ search = '' }: { search?: string }) {
   const {
     isAuthenticated,
     isAuthLoading,
@@ -152,15 +158,48 @@ export function PlanProjectsView() {
     });
   }, [projects, statusFilter, sortBy, searchQuery]);
 
+  const targetProjectId = useMemo(() => parsePositiveIdQueryParam(search, 'projectId'), [search]);
+  const targetProject = useMemo(
+    () => (targetProjectId !== null ? projects.find((p) => p.id === targetProjectId) ?? null : null),
+    [targetProjectId, projects]
+  );
+
+  useEffect(() => {
+    if (isLoading || !targetProject) return;
+    if (statusFilter === 'active_set' && targetProject.status === 'archived') {
+      setStatusFilter('all');
+    } else if (statusFilter !== 'active_set' && statusFilter !== 'all' && statusFilter !== targetProject.status) {
+      setStatusFilter('all');
+    }
+    if (searchQuery.trim().length > 0 && !filteredProjects.some((p) => p.id === targetProject.id)) {
+      setSearchQuery('');
+    }
+    setSelectedProjectId(targetProject.id);
+  }, [isLoading, targetProject, statusFilter, searchQuery, filteredProjects]);
+
+  const activeHighlightProjectId = useTemporaryEntityHighlight({
+    targetId: targetProjectId,
+    paramNamesToStrip: PROJECT_ID_PARAMS,
+    isReady: !isLoading,
+    entityExists: Boolean(targetProject),
+    selectorPrefix: 'project',
+  });
+
   useEffect(() => {
     if (filteredProjects.length === 0) {
       setSelectedProjectId(null);
       return;
     }
+    if (targetProject && filteredProjects.some((p) => p.id === targetProject.id)) {
+      if (selectedProjectId !== targetProject.id) {
+        setSelectedProjectId(targetProject.id);
+      }
+      return;
+    }
     if (!selectedProjectId || !filteredProjects.some((p) => p.id === selectedProjectId)) {
       setSelectedProjectId(filteredProjects[0].id);
     }
-  }, [filteredProjects, selectedProjectId]);
+  }, [filteredProjects, selectedProjectId, targetProject]);
 
   const selectedProject: Project | null = useMemo(
     () => projects.find((p) => p.id === selectedProjectId) ?? null,
@@ -373,16 +412,20 @@ export function PlanProjectsView() {
           <div className="space-y-3">
             {filteredProjects.map((project) => {
               const isSelected = selectedProject?.id === project.id;
+              const isHighlighted = activeHighlightProjectId === project.id;
               return (
                 <button
                   key={project.id}
                   type="button"
+                  data-think-target={`project-${project.id}`}
                   onClick={() => setSelectedProjectId(project.id)}
                   className={cn(
-                    'w-full rounded-2xl border p-4 text-left transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E59585]',
-                    isSelected
-                      ? 'border-[#E59585]/45 bg-[#252222]'
-                      : 'border-white/[0.07] bg-[#202020] hover:border-white/[0.14] hover:bg-[#242424]'
+                    'w-full rounded-2xl border p-4 text-left transition-all duration-300 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E59585]',
+                    isHighlighted
+                      ? 'border-[#E59585]/80 bg-[#E59585]/[0.12] ring-1 ring-[#E59585]/65'
+                      : isSelected
+                        ? 'border-[#E59585]/45 bg-[#252222]'
+                        : 'border-white/[0.07] bg-[#202020] hover:border-white/[0.14] hover:bg-[#242424]'
                   )}
                 >
                   <div className="flex items-start justify-between gap-3">
@@ -433,7 +476,15 @@ export function PlanProjectsView() {
 
           {/* Right: Selected Project Detail */}
           {selectedProject && (
-            <Card tone="surface" padding="lg" className="space-y-6">
+            <Card
+              tone="surface"
+              padding="lg"
+              className={cn(
+                'space-y-6 transition-all duration-300',
+                activeHighlightProjectId === selectedProject.id &&
+                  'border-[#E59585]/65 ring-1 ring-[#E59585]/45'
+              )}
+            >
               {/* Project Header */}
               <div className="flex flex-col justify-between gap-4 border-b border-white/[0.07] pb-5 sm:flex-row sm:items-start">
                 <div className="min-w-0 space-y-2">

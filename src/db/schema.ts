@@ -41,6 +41,71 @@ export interface RoutineStepSnapshotItem {
   durationMinutes: number | null;
 }
 
+export type ThinkContextSourceValue = 'general' | 'home' | 'plan' | 'live' | 'statistics';
+export type ThinkMessageRoleValue = 'user' | 'assistant';
+export type ThinkActionStatusValue = 'proposed' | 'approved' | 'rejected' | 'executed' | 'failed';
+export type ThinkActionTypeValue =
+  | 'create_task'
+  | 'update_task'
+  | 'create_calendar_event'
+  | 'create_project_milestone'
+  | 'create_goal_milestone'
+  | 'create_habit'
+  | 'create_routine'
+  | 'create_workout';
+
+export type ThinkEntityReferenceTypeValue =
+  | 'task'
+  | 'calendar_event'
+  | 'project'
+  | 'goal'
+  | 'habit'
+  | 'routine'
+  | 'workout';
+
+export type ThinkEvidenceSourceDomainValue = 'plan' | 'live' | 'statistics';
+
+export interface ThinkMessageReferenceRecord {
+  entityType: ThinkEntityReferenceTypeValue;
+  entityId: number;
+  label: string;
+  detail: string | null;
+  targetRoute: string;
+}
+
+export interface ThinkMessageEvidenceRecord {
+  claim: string;
+  sourceDomain: ThinkEvidenceSourceDomainValue;
+  entityType?: ThinkEntityReferenceTypeValue;
+  entityId?: number;
+}
+
+export interface ThinkMessageContextMetaRecord {
+  intentCategory: string;
+  selectedDomains: string[];
+  domainsConsulted: string[];
+  statsPreset?: string | null;
+  windowLabel: string;
+  timezone: string;
+  timezoneInitialized: boolean;
+  todayLocalDate: string;
+  truncatedDomains: string[];
+  degraded: boolean;
+  degradedDomains: string[];
+  retrievedAt: string;
+}
+
+export interface ThinkMessageMeta {
+  highlights?: string[];
+  followUpSuggestions?: string[];
+  mode?: 'foundation' | 'actions' | 'context_grounded';
+  references?: ThinkMessageReferenceRecord[];
+  evidence?: ThinkMessageEvidenceRecord[];
+  context?: ThinkMessageContextMetaRecord;
+  insufficientContext?: boolean;
+  uncertaintyNote?: string | null;
+}
+
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
   uid: text('uid').notNull().unique(),
@@ -407,6 +472,83 @@ export const routineLogs = pgTable(
   ]
 );
 
+export const aiConversations = pgTable(
+  'ai_conversations',
+  {
+    id: serial('id').primaryKey(),
+    userId: integer('user_id')
+      .references(() => users.id, { onDelete: 'cascade' })
+      .notNull(),
+    title: text('title').notNull().default('New thread'),
+    contextSource: text('context_source')
+      .$type<ThinkContextSourceValue>()
+      .notNull()
+      .default('general'),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [index('ai_conversations_user_updated_idx').on(table.userId, table.updatedAt)]
+);
+
+export const aiMessages = pgTable(
+  'ai_messages',
+  {
+    id: serial('id').primaryKey(),
+    conversationId: integer('conversation_id')
+      .references(() => aiConversations.id, { onDelete: 'cascade' })
+      .notNull(),
+    userId: integer('user_id')
+      .references(() => users.id, { onDelete: 'cascade' })
+      .notNull(),
+    role: text('role').$type<ThinkMessageRoleValue>().notNull(),
+    content: text('content').notNull(),
+    responseMeta: jsonb('response_meta').$type<ThinkMessageMeta | null>(),
+    model: text('model'),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index('ai_messages_conv_created_idx').on(table.conversationId, table.createdAt, table.id),
+    index('ai_messages_user_role_created_idx').on(table.userId, table.role, table.createdAt),
+  ]
+);
+
+// Phase 10B approval-gated action records
+export const aiActionRecords = pgTable(
+  'ai_action_records',
+  {
+    id: serial('id').primaryKey(),
+    conversationId: integer('conversation_id')
+      .references(() => aiConversations.id, { onDelete: 'cascade' })
+      .notNull(),
+    messageId: integer('message_id')
+      .references(() => aiMessages.id, { onDelete: 'cascade' })
+      .notNull(),
+    userId: integer('user_id')
+      .references(() => users.id, { onDelete: 'cascade' })
+      .notNull(),
+    actionType: text('action_type').$type<ThinkActionTypeValue>().notNull(),
+    status: text('status')
+      .$type<ThinkActionStatusValue>()
+      .notNull()
+      .default('proposed'),
+    summary: text('summary').notNull(),
+    rationale: text('rationale'),
+    payload: jsonb('payload').$type<Record<string, unknown>>().notNull(),
+    editedPayload: jsonb('edited_payload').$type<Record<string, unknown> | null>(),
+    executionResult: jsonb('execution_result').$type<Record<string, unknown> | null>(),
+    errorMessage: text('error_message'),
+    executedAt: timestamp('executed_at', { withTimezone: true }),
+    resolvedAt: timestamp('resolved_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index('ai_action_records_conv_created_idx').on(table.conversationId, table.createdAt, table.id),
+    index('ai_action_records_msg_idx').on(table.messageId),
+    index('ai_action_records_user_status_idx').on(table.userId, table.status),
+  ]
+);
+
 export const usersRelations = relations(users, ({ many }) => ({
   tasks: many(tasks),
   calendarEvents: many(calendarEvents),
@@ -419,6 +561,9 @@ export const usersRelations = relations(users, ({ many }) => ({
   routines: many(routines),
   routineSteps: many(routineSteps),
   routineLogs: many(routineLogs),
+  aiConversations: many(aiConversations),
+  aiMessages: many(aiMessages),
+  aiActionRecords: many(aiActionRecords),
 }));
 
 export const goalsRelations = relations(goals, ({ one, many }) => ({
@@ -570,6 +715,42 @@ export const routineLogsRelations = relations(routineLogs, ({ one }) => ({
   }),
 }));
 
+export const aiConversationsRelations = relations(aiConversations, ({ one, many }) => ({
+  owner: one(users, {
+    fields: [aiConversations.userId],
+    references: [users.id],
+  }),
+  messages: many(aiMessages),
+  actions: many(aiActionRecords),
+}));
+
+export const aiMessagesRelations = relations(aiMessages, ({ one, many }) => ({
+  conversation: one(aiConversations, {
+    fields: [aiMessages.conversationId],
+    references: [aiConversations.id],
+  }),
+  owner: one(users, {
+    fields: [aiMessages.userId],
+    references: [users.id],
+  }),
+  actions: many(aiActionRecords),
+}));
+
+export const aiActionRecordsRelations = relations(aiActionRecords, ({ one }) => ({
+  conversation: one(aiConversations, {
+    fields: [aiActionRecords.conversationId],
+    references: [aiConversations.id],
+  }),
+  message: one(aiMessages, {
+    fields: [aiActionRecords.messageId],
+    references: [aiMessages.id],
+  }),
+  owner: one(users, {
+    fields: [aiActionRecords.userId],
+    references: [users.id],
+  }),
+}));
+
 export type UserRecord = typeof users.$inferSelect;
 export type GoalRecord = typeof goals.$inferSelect;
 export type GoalMilestoneRecord = typeof goalMilestones.$inferSelect;
@@ -584,3 +765,6 @@ export type WorkoutSessionRecord = typeof workoutSessions.$inferSelect;
 export type RoutineRecord = typeof routines.$inferSelect;
 export type RoutineStepRecord = typeof routineSteps.$inferSelect;
 export type RoutineLogRecord = typeof routineLogs.$inferSelect;
+export type AiConversationRecord = typeof aiConversations.$inferSelect;
+export type AiMessageRecord = typeof aiMessages.$inferSelect;
+export type AiActionRecordRow = typeof aiActionRecords.$inferSelect;

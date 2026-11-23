@@ -40,9 +40,13 @@ function MarlyWorkspace() {
       ) : (
         <>
           {route.section === 'home' && <HomePage onNavigate={navigate} />}
-          {route.section === 'plan' && <PlanPage activeTab={route.planTab} onNavigate={navigate} />}
-          {route.section === 'live' && <LivePage activeTab={route.liveTab} onNavigate={navigate} />}
-          {route.section === 'think' && <ThinkPage />}
+          {route.section === 'plan' && (
+            <PlanPage activeTab={route.planTab} search={route.search} onNavigate={navigate} />
+          )}
+          {route.section === 'live' && (
+            <LivePage activeTab={route.liveTab} search={route.search} onNavigate={navigate} />
+          )}
+          {route.section === 'think' && <ThinkPage onNavigate={navigate} />}
           {route.section === 'statistics' && <StatisticsPage onNavigate={navigate} />}
           {route.section === 'settings' && <SettingsPage />}
         </>
